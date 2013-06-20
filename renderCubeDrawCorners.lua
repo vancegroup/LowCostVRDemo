@@ -8,12 +8,8 @@ Actions.addFrameAction(function()
     
     -- button1 was just pressed
     startLoc = Vecf(device.position)
-    print("startLoc received. x = ")
-    print(startLoc:x())
-    print("y = ")
-    print(startLoc:y())
-    print("z = ")
-    print(startLoc:z())
+    print("startLoc received.")
+    printVec(startLoc)
     
     while button1.pressed do
         Actions.waitForRedraw()
@@ -27,13 +23,26 @@ Actions.addFrameAction(function()
     
     -- button1 was pressed again
     endLoc = Vecf(device.position)
-    print("endLoc received. x = ")
-    print(endLoc:x())
-    print("y = ")
-    print(endLoc:y())
-    print("z = ")
-    print(endLoc:z())
-    cube = osg.Box(endLoc-startLoc, endLoc:x()-startLoc:x(), endLoc:y()-startLoc:y(), endLoc:z()-startLoc:z())
+    print("endLoc received.")
+    printVec(endLoc)
+
+    centerPos = avgPosf(endLoc,startLoc)
+    print("centerPos:")
+    printVec(centerPos)
+    
+    deltax = endLoc:x()-startLoc:x()
+    print("deltax: ")
+    print(deltax)
+    
+    deltay = endLoc:y()-startLoc:y()
+    print("deltay: ")
+    print(deltay)
+    
+    deltaz = endLoc:z()-startLoc:z()
+    print("deltaz: ")
+    print(deltaz)
+
+    cube = osg.Box(centerPos, 10, 10, 5) --deltax, deltay, deltaz)
     shapeDrawable = osg.ShapeDrawable(cube)
     cubeGeode = osg.Geode()
     cubeGeode:addDrawable(shapeDrawable)
@@ -48,3 +57,11 @@ Actions.addFrameAction(function()
     end
     
 end)
+
+function avgPosf(v1, v2) 
+    return Vecf( (v1:x()+v2:x())/2, (v1:y()+v2:y())/2, (v1:z()+v2:z())/2 )
+end
+
+function printVec(vec)
+    print("x = ", vec:x(), "; y = ", vec:y(), "; z = ", vec:z())
+end
