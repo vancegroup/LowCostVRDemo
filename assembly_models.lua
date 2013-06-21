@@ -1,4 +1,6 @@
 require "TransparentGroup"
+require("getScriptFilename")
+vrjLua.appendToModelSearchPath(getScriptFilename())
 
 local alphastates = {}   -- a StateSet for each group that has been initialized with the myTransparentGroup function. The keys for the table are the groups themselves, the values are the StateSets.
 
@@ -82,6 +84,7 @@ Actions.addFrameAction(function()
 		
 		changeTransparency(model_4, 1.0)
 		xform_save_4:postMult(device.matrix)  -- save current position by updating the xform_save transform
+		xform4:setMatrix(osg.Matrixd.identity())   -- what was formerly xform_save_4 * xform4 is now stored in xform_save_4; and xform4 is identity
 		changeTransparency(model_1, 0.2)
 		xform_save_1:postMult(osg.Matrixd.inverse(device.matrix))   -- prevent new item from "jumping" by compensating for current position of cursor
 		print("Part 1 is selected.")
@@ -94,6 +97,7 @@ Actions.addFrameAction(function()
 		
 		changeTransparency(model_1, 1.0)
 		xform_save_1:postMult(device.matrix)  -- save current position by updating the xform_save transform
+		xform1:setMatrix(osg.Matrixd.identity())   -- what was formerly xform_save_1 * xform1 is now stored in xform_save_1; and xform1 is identity
 		changeTransparency(model_2, 0.2)
 		xform_save_2:postMult(osg.Matrixd.inverse(device.matrix))   -- prevent new item from "jumping" by compensating for current position of cursor
 		print("Part 2 is selected.")
@@ -106,6 +110,7 @@ Actions.addFrameAction(function()
 		
 		changeTransparency(model_2, 1.0)
 		xform_save_2:postMult(device.matrix)  -- save current position by updating the xform_save transform
+		xform2:setMatrix(osg.Matrixd.identity())   -- what was formerly xform_save_2 * xform2 is now stored in xform_save_2; and xform2 is identity
 		changeTransparency(model_3, 0.2)
 		xform_save_3:postMult(osg.Matrixd.inverse(device.matrix))   -- prevent new item from "jumping" by compensating for current position of cursor
 		print("Part 3 is selected.")
@@ -118,6 +123,7 @@ Actions.addFrameAction(function()
 		
 		changeTransparency(model_3, 1.0)
 		xform_save_3:postMult(device.matrix)  -- save current position by updating the xform_save transform
+		xform3:setMatrix(osg.Matrixd.identity())   -- what was formerly xform_save_3 * xform3 is now stored in xform_save_3; and xform3 is identity
 		changeTransparency(model_4, 0.2)
 		xform_save_4:postMult(osg.Matrixd.inverse(device.matrix))   -- prevent new item from "jumping" by compensating for current position of cursor
 		print("Part 4 is selected.")
