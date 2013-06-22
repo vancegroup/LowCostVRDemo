@@ -4,8 +4,6 @@ vrjLua.appendToModelSearchPath(getScriptFilename())
 
 local alphastates = {}   -- a StateSet for each group that has been initialized with the myTransparentGroup function. The keys for the table are the groups themselves, the values are the StateSets.
 
-local currentlySelected = 1
-
 -- modified copy of the lua src for the TransparentGroup{} function
 function myTransparentGroup(arg)
 	local group = osg.Group()
@@ -32,7 +30,6 @@ end
 function changeTransparency(my_trans_group, new_alpha)
 	local bc = osg.BlendColor(Vecf(1.0, 1.0, 1.0, new_alpha))
 	alphastates[my_trans_group]:setAttributeAndModes(bc)
-	--my_trans_group:setStateSet(alphastates[my_trans_group])  -- I don't think that this re-assign is necessary. I think the StateSet remains bound to the group.
 end
 
 device = gadget.PositionInterface("VJWand")
