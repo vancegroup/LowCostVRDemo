@@ -2,6 +2,7 @@ require "myTransparentGroup"
 
 device = gadget.PositionInterface('VJWand')
 button1 = gadget.DigitalInterface('VJButton1')
+button2 = gadget.DigitalInterface('VJButton2')
 
 cursor_geode = osg.Geode()
 cursor_geode:addDrawable(osg.ShapeDrawable(osg.Cone(Vecf(0,0,0), 0.1, 0.3)))   -- tip is 0.2 farther in the z direction
