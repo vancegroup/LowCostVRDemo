@@ -23,7 +23,8 @@ function myGrabbable(someNode, wand)    -- accepts a Geode or Transform etc.; re
 end
 
 function grab(grabbable)
-	getxform_save[grabbable]:postMult(osg.Matrixd.inverse(getdevice[grabbable].matrix))   -- prevent new item from "jumping" by compensating for current position of cursor
+	if (not grabbable or not getxform[grabbable]) then print("Error: trying to grab something which is not a grabbable"); return end
+	getxform_save[grabbable]:preMult(osg.Matrixd.inverse(getdevice[grabbable].matrix))   -- prevent new item from "jumping" by compensating for current position of cursor
 	changeTransparency(gettransgroup[grabbable], 0.2)
 	getframeaction[grabbable] = Actions.addFrameAction(function() 
 		while true do
@@ -34,8 +35,9 @@ function grab(grabbable)
 end
 
 function ungrab(grabbable)
+	if (not grabbable or not getxform[grabbable]) then print("Error: trying to ungrab something which is not a grabbable"); return end
 	Actions.removeFrameAction(getframeaction[grabbable])
 	changeTransparency(gettransgroup[grabbable], 1.0)
-	getxform_save[grabbable]:postMult(getdevice[grabbable].matrix)   -- save current position by updating the xform_save transform
+	getxform_save[grabbable]:preMult(getdevice[grabbable].matrix)   -- save current position by updating the xform_save transform
 	getxform[grabbable]:setMatrix(osg.Matrixd.identity())   -- what was formerly xform_save * xform is now stored in xform_save; xform is now identity
 end

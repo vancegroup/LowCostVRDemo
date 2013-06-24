@@ -1,4 +1,4 @@
-require "myTransparentGroup"
+require "myGrabbable"
 
 device = gadget.PositionInterface('VJWand')
 button1 = gadget.DigitalInterface('VJButton1')
@@ -26,13 +26,12 @@ Actions.addFrameAction(function()
 	shapeDrawable:setUseDisplayList(false)  -- force to re-render every frame
     cylinderGeode = osg.Geode()
     cylinderGeode:addDrawable(shapeDrawable)
-    local xform = osg.MatrixTransform()
-    xform:addChild(cylinderGeode)
     local permxform = Transform{ 
 		orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) 
 	}
-	permxform:addChild(xform)
-	RelativeTo.World:addChild(permxform)
+	permxform:addChild(cylinderGeode)
+	cylinderGrabbable = myGrabbable(permxform, device)
+	RelativeTo.World:addChild(cylinderGrabbable)
 	
     repeat
 		cursor_xform:setMatrix(device.matrix)  -- update cursor position
@@ -75,9 +74,24 @@ Actions.addFrameAction(function()
 	
 	-- button1 was released
 	
-    while true do
-        cursor_xform:setMatrix(device.matrix)
-		Actions.waitForRedraw()
+	--drawing is complete, now just let the user grab and move/rotate the new cylinder
+    shapeDrawable:setUseDisplayList(true)  -- because drawing is done. No need to re-render every frame.
+	while true do
+        
+		repeat
+			cursor_xform:setMatrix(device.matrix)
+			Actions.waitForRedraw()
+		until button1.pressed
+		
+		grab(cylinderGrabbable)
+		
+		repeat
+			cursor_xform:setMatrix(device.matrix)
+			Actions.waitForRedraw()
+		until not button1.pressed
+		
+		ungrab(cylinderGrabbable)
+		
     end
     
 end)
