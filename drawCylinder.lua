@@ -1,9 +1,11 @@
+require "myTransparentGroup"
+
 device = gadget.PositionInterface('VJWand')
 button1 = gadget.DigitalInterface('VJButton1')
 
 cursor_geode = osg.Geode()
 cursor_geode:addDrawable(osg.ShapeDrawable(osg.Cone(Vecf(0,0,0), 0.1, 0.3)))   -- tip is 0.2 farther in the z direction
-cursor_permxform = Transform{ orientation = AngleAxis(Degrees(-90), Axis{1.0,0.0,0.0}) }
+cursor_permxform = Transform{ position = {0, -0.2, 0}, orientation = AngleAxis(Degrees(-90), Axis{1.0,0.0,0.0}) }   -- position component adjusts so that the cursor behaves as if the tip is its center
 cursor_permxform:addChild(cursor_geode)
 cursor_xform = osg.MatrixTransform(device.matrix)
 cursor_xform:addChild(cursor_permxform)
@@ -15,10 +17,9 @@ Actions.addFrameAction(function()
 		Actions.waitForRedraw()
     until button1.pressed
 
-    startLoc = Vecf(device.position)
-    print("startLoc received.")
-    printVec(startLoc)
-    
+    startLoc = Vecf(device.position)   -- the location the button was first pressed
+	
+	-- initialize the cylinder
 	cylinder = osg.Cylinder(startLoc, 0.1, 0.05)
     shapeDrawable = osg.ShapeDrawable(cylinder)
 	shapeDrawable:setUseDisplayList(false)  -- force to re-render every frame
@@ -27,7 +28,6 @@ Actions.addFrameAction(function()
     local xform = osg.MatrixTransform()
     xform:addChild(cylinderGeode)
     local permxform = Transform{ 
-		position = {0,0.2,0},
 		orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) 
 	}
 	permxform:addChild(xform)
@@ -38,20 +38,42 @@ Actions.addFrameAction(function()
 		local endLoc = Vecf(device.position)
 		local centerPos = avgPosf(endLoc,startLoc)
 		local deltax = endLoc:x()-startLoc:x()
-		local deltay = endLoc:y()-startLoc:y()
+		--local deltay = endLoc:y()-startLoc:y()
 		local deltaz = endLoc:z()-startLoc:z()
 		cylinder:setCenter(centerPos)
 		local newradius = (deltax^2+deltaz^2)^0.5/2.0  -- the diameter is the xz-distance between startLoc and endLoc. Divide by 2 to get the radius. xz-distance is used because the cylinder expands in the xz-plane and cannot be expanded in y during this step (making the base).
 		if (newradius > 0.1) then
 			cylinder:setRadius( newradius )
-			print("updated radius")
 		end
-		print("updated cylinder: \ncenter: "); printVec(cylinder:getCenter()); print("radius: ", cylinder:getRadius())
 		Actions.waitForRedraw()
     until not button1.pressed
     
     -- button1 was released
-
+	
+	initial_cylinder_center = cylinder:getCenter()
+	
+	repeat
+		cursor_xform:setMatrix(device.matrix)
+		Actions.waitForRedraw()
+	until button1.pressed
+	
+	-- button1 was pressed the second time
+	
+	startLoc = Vecf(device.position)
+	
+	repeat
+		cursor_xform:setMatrix(device.matrix)
+		local endLoc = Vecf(device.position)
+		local deltay = endLoc:y()-startLoc:y()
+		if (math.abs(deltay) > 0.05) then
+			cylinder:setHeight(deltay)
+		end
+		cylinder:setCenter(Vecf(initial_cylinder_center:x(), initial_cylinder_center:y()+0.5*deltay, initial_cylinder_center:z()))    -- the center is halfway up the height
+		Actions.waitForRedraw()
+	until not button1.pressed
+	
+	-- button1 was released
+	
     while true do
         cursor_xform:setMatrix(device.matrix)
 		Actions.waitForRedraw()
