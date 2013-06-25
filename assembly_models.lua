@@ -8,10 +8,10 @@ part_2 = myGrabbable(Model("sparta_models/Clutch-FlywheelPart2.ive"), device)
 part_3 = myGrabbable(Model("sparta_models/Clutch-FlywheelPart3.ive"), device)
 part_4 = myGrabbable(Model("sparta_models/Clutch-FlywheelPart4.ive"), device)
 
-RelativeTo.World:addChild(part_1)
-RelativeTo.World:addChild(part_2)
-RelativeTo.World:addChild(part_3)
-RelativeTo.World:addChild(part_4)
+RelativeTo.World:addChild(part_1.attach_here)
+RelativeTo.World:addChild(part_2.attach_here)
+RelativeTo.World:addChild(part_3.attach_here)
+RelativeTo.World:addChild(part_4.attach_here)
 
 Actions.addFrameAction(function()
 	
