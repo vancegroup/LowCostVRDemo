@@ -11,7 +11,7 @@ require "myTransparentGroup"
         .transgroup  -- a myTransparentGroup
         .xform_track  -- an osg.MatrixTransform
         .xform_save  -- also an osg.MatrixTransform
-        .device      -- a gadget.PositionInterface
+        .wand      -- a gadget.PositionInterface
         .frameaction  -- the handle to its FrameAction (see Actions.lua) if it is currently grabbed
 ]]--
 
@@ -22,18 +22,18 @@ function myGrabbable(someNode, wand)
 	grabbable.xform_track:addChild(grabbable.transgroup)
 	grabbable.xform_save = osg.MatrixTransform(osg.Matrixd.identity())   -- identity() is a static method for the osg.Matrixd class.
 	grabbable.xform_save:addChild(grabbable.xform_track)
-	grabbable.device = wand
+	grabbable.wand = wand
     grabbable.attach_here = grabbable.xform_save   -- the outermost node. See above outline for a good description of this field.
 	
 	return grabbable
 end
 
 function grab(grabbable)
-	grabbable.xform_save:preMult(osg.Matrixd.inverse(grabbable.device.matrix))   -- prevent new item from "jumping" by compensating for current position of cursor
+	grabbable.xform_save:preMult(osg.Matrixd.inverse(grabbable.wand.matrix))   -- prevent new item from "jumping" by compensating for current position of cursor
 	changeTransparency(grabbable.transgroup, 0.2)
 	grabbable.frameaction = Actions.addFrameAction(function() 
 		while true do
-			grabbable.xform_track:setMatrix(grabbable.device.matrix)
+			grabbable.xform_track:setMatrix(grabbable.wand.matrix)
 			Actions.waitForRedraw()
 		end
 	end)
@@ -42,6 +42,6 @@ end
 function ungrab(grabbable)
 	Actions.removeFrameAction(grabbable.frameaction)
 	changeTransparency(grabbable.transgroup, 1.0)
-	grabbable.xform_save:preMult(grabbable.device.matrix)   -- save current position by updating the xform_save transform
+	grabbable.xform_save:preMult(grabbable.wand.matrix)   -- save current position by updating the xform_save transform
 	grabbable.xform_track:setMatrix(osg.Matrixd.identity())   -- what was formerly xform_save * xform_track is now stored in xform_save; xform_track is now identity
 end
