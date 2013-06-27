@@ -3,10 +3,10 @@ require "myGrabbable"
 device = gadget.PositionInterface("VJWand")
 selectButton = gadget.DigitalInterface("VJButton1")
 
-part_1 = myGrabbable(Model("sparta_models/Clutch-FlywheelPart1.ive"), device)
-part_2 = myGrabbable(Model("sparta_models/Clutch-FlywheelPart2.ive"), device)
-part_3 = myGrabbable(Model("sparta_models/Clutch-FlywheelPart3.ive"), device)
-part_4 = myGrabbable(Model("sparta_models/Clutch-FlywheelPart4.ive"), device)
+part_1 = myGrabbable(Model("sparta_models/Clutch-FlywheelPart1.ive"))
+part_2 = myGrabbable(Model("sparta_models/Clutch-FlywheelPart2.ive"))
+part_3 = myGrabbable(Model("sparta_models/Clutch-FlywheelPart3.ive"))
+part_4 = myGrabbable(Model("sparta_models/Clutch-FlywheelPart4.ive"))
 
 RelativeTo.World:addChild(part_1.attach_here)
 RelativeTo.World:addChild(part_2.attach_here)

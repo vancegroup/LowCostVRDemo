@@ -3,7 +3,7 @@ require "myTransparentGroup"
 
 --[[
     class myGrabbable = {}
-        Constructor: myGrabbable(someNode, wand)  -- accepts a Geode or Transform etc.; returns a Grabbable based on it
+        Constructor: myGrabbable(someNode)  -- accepts a Geode or Transform etc.; returns a Grabbable based on it
         
         .attach_here   -- since I don't know how to properly inherit from Transform or Node (which myGrabbable should be a subclass of), instead we have this
                        -- .attach_here field. When you have a grabbable, the grabbable.attach_here is what you should add as a child of a Transform or RelativeTo.World etc.
@@ -21,7 +21,7 @@ require "myTransparentGroup"
         .frameaction  -- the handle to its FrameAction (see Actions.lua) if it is currently grabbed
 ]]--
 
-function myGrabbable(someNode, wand)    
+function myGrabbable(someNode)    
 	local grabbable = {}
     grabbable.transgroup = myTransparentGroup{ alpha = 1.0, someNode }
 	grabbable.xform_track = osg.MatrixTransform()

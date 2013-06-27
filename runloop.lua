@@ -1,27 +1,15 @@
 require "controls"
-require "drawCylinder"
 require "cursor"
-
---[[
-    abstract base class myObject: inherits from myGrabbable -- that is, it must be first initialized with the myGrabbable constructor
-        (Lua)bool .selected   -- whether object is selected or not
-        (Lua)bool .cursorOver   -- whether the cursor is over the object or not
-        Vec3f :getCenter()
-        void :initializeScaling()  -- get ready for subsequent calls to scale()
-        void :scale(float)
-        void :openForEditing()
-        void :closeForEditing()
-        (Lua)bool :contains(Vec3f)   -- whether the object contains the point passed as argument
-]]--
+require "Box"
+require "Cylinder"
 
 objects = {}  -- list of all myObjects that have been created (numerically indexed)
 
 function runloop()
-    cursor = Cursor()  -- initialize the cursor
+    local cursor = Cursor()  -- initialize the cursor
     
     while true do
         repeat
-            print("World cursor coordinates reported as "); printVec(cursor:getPosition())
             for _, o in ipairs(objects) do
                 if o:contains(cursor:getPosition()) then
                     o.cursorOver = true
@@ -39,18 +27,29 @@ function runloop()
             for _, o in ipairs(objects) do
                 o.selected = false  -- deselect all other objects when creating a new one. Assuming this is desired behavior.
             end
-            table.insert(objects, Cylinder())
+            table.insert(objects, Box())
         
         elseif click_to_select_button.pressed then 
             
+            local cursorOverAnything = false
             for _, o in ipairs(objects) do
                 if o.cursorOver then
+                    cursorOverAnything = true
                     if o.selected then 
                         o.selected = false
                         ungrab(o)
                     else
                         o.selected = true
                         grab(o)
+                    end
+                end
+            end
+            
+            if not cursorOverAnything then
+                for _, o in ipairs(objects) do
+                    if o.selected then
+                        o.selected = false
+                        ungrab(o)
                     end
                 end
             end
@@ -64,11 +63,12 @@ function runloop()
             end
             
             -- initialize all selected objects for the operation
+            local startLoc;
             for _, object in ipairs(selectedObjects) do
                 ungrab(object)  -- keep objects locked in place during scaling
                 object:openForEditing()
-                local startLoc = Vecf(wand.position)
-                local initialDistFromCenter = (startLoc - object:getCenter()):length()
+                startLoc = Vecf(wand.position)
+                object.initialDistFromCenter = (startLoc - object:getCenterInWorldCoords()):length()
                 object:initializeScaling()
             end
             
@@ -78,8 +78,8 @@ function runloop()
                 local endLoc = Vecf(wand.position)
                 
                 for _, object in ipairs(selectedObjects) do
-                    local newDistFromCenter = (endLoc - object:getCenter()):length()
-                    local newScale = 1.0 + (newDistFromCenter-initialDistFromCenter)/initialDistFromCenter  -- moving the wand twice as far from the center as when you started scaling will double the object's size. Moving it all the way to the center of the object will make its size 0 (in the limit).
+                    object.newDistFromCenter = (endLoc - object:getCenterInWorldCoords()):length()
+                    local newScale = 1.0 + (object.newDistFromCenter-object.initialDistFromCenter)/object.initialDistFromCenter  -- moving the wand twice as far from the center as when you started scaling will double the object's size. Moving it all the way to the center of the object will make its size 0 (in the limit).
                     object:scale(newScale)
                 end
             
