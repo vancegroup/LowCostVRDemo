@@ -25,10 +25,10 @@ function runloop()
             for _, o in ipairs(objects) do
                 if o:contains(cursor:getPosition()) then
                     o.cursorOver = true
-                    o:makeTransparent()
+                    if not o.selected then o:makeSemiTransparent() end
                 else
                     o.cursorOver = false
-                    o:makeUnTransparent()
+                    if not o.selected then o:makeUnTransparent() end
                 end
             end
             Actions.waitForRedraw()

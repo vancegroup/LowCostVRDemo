@@ -11,6 +11,7 @@ require "myTransparentGroup"
         Matrixd :getWorldToLocalCoords()  -- returns a matrix to convert a point from world coordinates to the local coordinate system of the Node the Grabbable was based on
         Matrixd :getLocalToWorldCoords()  -- same, but a matrix to convert from local coordinates to the world coordinates
         void :makeTransparent()
+        void :makeSemiTransparent()
         void :makeUnTransparent()
         
         -- private members
@@ -21,7 +22,7 @@ require "myTransparentGroup"
 ]]--
 
 function myGrabbable(someNode, wand)    
-	grabbable = {}
+	local grabbable = {}
     grabbable.transgroup = myTransparentGroup{ alpha = 1.0, someNode }
 	grabbable.xform_track = osg.MatrixTransform()
 	grabbable.xform_track:addChild(grabbable.transgroup)
@@ -38,6 +39,10 @@ function myGrabbable(someNode, wand)
     
     grabbable.makeTransparent = function()
         changeTransparency(grabbable.transgroup, 0.2)
+    end
+    
+    grabbable.makeSemiTransparent = function()
+        changeTransparency(grabbable.transgroup, 0.7)
     end
     
     grabbable.makeUnTransparent = function()
