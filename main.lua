@@ -5,8 +5,8 @@ scriptFolder = getScriptFilename():match("(.+)/.-$")   --Lua pattern, like a reg
 if not string.find(package.path, scriptFolder) then package.path = scriptFolder .. '/?.lua;' .. package.path end   -- let require() find files in scriptFolder
 
 
---dofile(scriptFolder .. "/assembly_models.lua")
+dofile(scriptFolder .. "/help.lua")
 
-require "runloop"
-Actions.addFrameAction(runloop)
+--require "runloop"
+--Actions.addFrameAction(runloop)
 
