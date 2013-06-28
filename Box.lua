@@ -4,7 +4,7 @@ require "myObject"
     class Box: inherits from (and implements) myObject
         Constructor: Box()
         
-        implements all methods of myObject
+        implements abstract methods of myObject
         
         Additional private members:
         .osgbox  -- the underlying osg::Box

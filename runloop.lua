@@ -1,7 +1,9 @@
 require "controls"
 require "cursor"
 require "Box"
+require "Cone"
 require "Cylinder"
+require "Sphere"
 
 objects = {}  -- list of all myObjects that have been created (numerically indexed)
 
@@ -27,7 +29,7 @@ function runloop()
             for _, o in ipairs(objects) do
                 o.selected = false  -- deselect all other objects when creating a new one. Assuming this is desired behavior.
             end
-            table.insert(objects, Box())
+            table.insert(objects, Sphere())
         
         elseif click_to_select_button.pressed then 
             

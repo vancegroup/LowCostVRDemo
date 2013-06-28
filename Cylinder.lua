@@ -77,7 +77,8 @@ function Cylinder()
     -- hold_to_draw_button was pressed the second time
 
     startLoc = Vecf(wand.position)
-
+    
+    -- centerPos persists as the coordinates of the center of the base of the cone
     repeat
         local endLoc = Vecf(wand.position)
         local deltay = endLoc:y()-startLoc:y()
