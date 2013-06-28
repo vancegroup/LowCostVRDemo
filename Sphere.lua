@@ -1,0 +1,68 @@
+require "myObject"
+
+--[[
+    class Sphere: inherits from (and implements) myObject
+    Constructors: Sphere()  -- create a new Sphere using the interactive draw sequence
+                  Sphere(sphere_to_copy)   -- create a new Sphere that is an exact duplicate of the one passed
+    
+    implements abstract methods of myObject
+    
+    Additional private members:
+    .osgsphere  -- the underlying osg::Sphere
+]]--
+
+function Sphere()
+    local rawsphere = osg.Sphere(Vecf(0,0,0), 0.01)
+    local sphere = myObject(rawsphere)
+    sphere.osgsphere = rawsphere
+    
+    sphere.getCenterInWorldCoords = Sphere_getCenterInWorldCoords
+    sphere.initializeScaling = Sphere_initializeScaling
+    sphere.scale = Sphere_scale
+    sphere.contains = Sphere_contains
+    
+    -- draw the sphere
+    repeat
+        Actions.waitForRedraw()
+    until hold_to_draw_button.pressed
+    
+    local startLoc = Vecf(wand.position)   -- the location the button was first pressed
+    sphere:setCenter(Vec(startLoc))
+    RelativeTo.World:addChild(sphere.attach_here)
+    sphere:openForEditing()
+    
+    repeat
+        local endLoc = Vecf(wand.position)
+        sphere:setCenter(Vec(avgPosf(startLoc, endLoc)))
+        local newradius = (endLoc - startLoc):length() / 2
+        if (newradius > 0.01) then
+            sphere.osgsphere:setRadius( newradius )
+        end
+        Actions.waitForRedraw()
+    until not hold_to_draw_button.pressed
+    
+    -- hold_to_draw_button was released
+    
+    sphere:closeForEditing()
+    
+    -- done creating sphere
+    return sphere
+end
+
+function Sphere_getCenterInWorldCoords(sphere)
+    return sphere:getLocalToWorldCoords():preMult(sphere.osgsphere:getCenter())
+end
+
+function Sphere_initializeScaling(sphere)
+    sphere.initialRadius = sphere.osgsphere:getRadius()
+end
+
+function Sphere_scale(sphere, newScale)
+    sphere.osgsphere:setRadius(sphere.initialRadius*newScale)
+end
+
+function Sphere_contains(sphere, vec)
+    local vecInLocalCoords = sphere.getWorldToLocalCoords():preMult(vec)
+    local distFromCenter = (vecInLocalCoords - sphere.osgsphere:getCenter()):length()
+    if distFromCenter > sphere.osgsphere:getRadius() then return false else return true end
+end

@@ -1,50 +1,39 @@
 require "controls"
-require "drawCylinder"
 require "cursor"
-
---[[
-    abstract base class myObject: inherits from myGrabbable -- that is, it must be first initialized with the myGrabbable constructor
-        (Lua)bool .selected   -- whether object is selected or not
-        (Lua)bool .cursorOver   -- whether the cursor is over the object or not
-        Vec3f :getCenter()
-        void :initializeScaling()  -- get ready for subsequent calls to scale()
-        void :scale(float)
-        void :openForEditing()
-        void :closeForEditing()
-        (Lua)bool :contains(Vec3f)   -- whether the object contains the point passed as argument
-]]--
+require "Box"
+require "Cone"
+require "Cylinder"
+require "Sphere"
 
 objects = {}  -- list of all myObjects that have been created (numerically indexed)
 
 function runloop()
-    cursor = Cursor()  -- initialize the cursor
+    local cursor = Cursor()  -- initialize the cursor
     
     while true do
-        repeat
-            print("World cursor coordinates reported as "); printVec(cursor:getPosition())
-            for _, o in ipairs(objects) do
-                if o:contains(cursor:getPosition()) then
-                    o.cursorOver = true
-                    o:makeTransparent()
-                else
-                    o.cursorOver = false
-                    o:makeUnTransparent()
-                end
+        for _, o in ipairs(objects) do
+            if o:contains(cursor:getPosition()) then
+                o.cursorOver = true
+                if not o.selected then o:makeSemiTransparent() end
+            else
+                o.cursorOver = false
+                if not o.selected then o:makeUnTransparent() end
             end
-            Actions.waitForRedraw()
-        until somethingHappens()
+        end
         
-        if open_library_button.pressed then
+        if open_library_button.justPressed then
             
             for _, o in ipairs(objects) do
                 o.selected = false  -- deselect all other objects when creating a new one. Assuming this is desired behavior.
             end
-            table.insert(objects, Cylinder())
+            table.insert(objects, Sphere())
         
-        elseif click_to_select_button.pressed then 
+        elseif click_to_select_button.justPressed then 
             
+            local cursorOverAnything = false
             for _, o in ipairs(objects) do
                 if o.cursorOver then
+                    cursorOverAnything = true
                     if o.selected then 
                         o.selected = false
                         ungrab(o)
@@ -54,8 +43,17 @@ function runloop()
                     end
                 end
             end
+            
+            if not cursorOverAnything then
+                for _, o in ipairs(objects) do
+                    if o.selected then
+                        o.selected = false
+                        ungrab(o)
+                    end
+                end
+            end
         
-        elseif hold_to_scale_button.pressed then
+        elseif hold_to_scale_button.justPressed then
             
             -- make a list of all selected objects
             local selectedObjects = {}
@@ -64,11 +62,12 @@ function runloop()
             end
             
             -- initialize all selected objects for the operation
+            local startLoc;
             for _, object in ipairs(selectedObjects) do
                 ungrab(object)  -- keep objects locked in place during scaling
                 object:openForEditing()
-                local startLoc = Vecf(wand.position)
-                local initialDistFromCenter = (startLoc - object:getCenter()):length()
+                startLoc = Vecf(wand.position)
+                object.initialDistFromCenter = (startLoc - object:getCenterInWorldCoords()):length()
                 object:initializeScaling()
             end
             
@@ -78,8 +77,8 @@ function runloop()
                 local endLoc = Vecf(wand.position)
                 
                 for _, object in ipairs(selectedObjects) do
-                    local newDistFromCenter = (endLoc - object:getCenter()):length()
-                    local newScale = 1.0 + (newDistFromCenter-initialDistFromCenter)/initialDistFromCenter  -- moving the wand twice as far from the center as when you started scaling will double the object's size. Moving it all the way to the center of the object will make its size 0 (in the limit).
+                    object.newDistFromCenter = (endLoc - object:getCenterInWorldCoords()):length()
+                    local newScale = 1.0 + (object.newDistFromCenter-object.initialDistFromCenter)/object.initialDistFromCenter  -- moving the wand twice as far from the center as when you started scaling will double the object's size. Moving it all the way to the center of the object will make its size 0 (in the limit).
                     object:scale(newScale)
                 end
             
@@ -95,16 +94,16 @@ function runloop()
             
         end
         
-        repeat
-            Actions.waitForRedraw()
-        until not somethingHappens()  -- avoid multiple presses
+        Actions.waitForRedraw()
         
     end
 end
 
-function somethingHappens()
+function somethingHappens()   -- returns true if a button was pressed, else false
     for _, b in ipairs(allbuttons) do
-        if b.pressed then return b end
+        if b.justPressed then return true end
     end
-    return nil
+    if trigger.data ~= 0.5 then return true end
+    if analogstickY ~= 0.5 then return true end
+    return false
 end

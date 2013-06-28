@@ -3,7 +3,7 @@ require "myTransparentGroup"
 
 --[[
     class myGrabbable = {}
-        Constructor: myGrabbable(someNode, wand)  -- accepts a Geode or Transform etc.; returns a Grabbable based on it
+        Constructor: myGrabbable(someNode)  -- accepts a Geode or Transform etc.; returns a Grabbable based on it
         
         .attach_here   -- since I don't know how to properly inherit from Transform or Node (which myGrabbable should be a subclass of), instead we have this
                        -- .attach_here field. When you have a grabbable, the grabbable.attach_here is what you should add as a child of a Transform or RelativeTo.World etc.
@@ -11,6 +11,7 @@ require "myTransparentGroup"
         Matrixd :getWorldToLocalCoords()  -- returns a matrix to convert a point from world coordinates to the local coordinate system of the Node the Grabbable was based on
         Matrixd :getLocalToWorldCoords()  -- same, but a matrix to convert from local coordinates to the world coordinates
         void :makeTransparent()
+        void :makeSemiTransparent()
         void :makeUnTransparent()
         
         -- private members
@@ -20,8 +21,8 @@ require "myTransparentGroup"
         .frameaction  -- the handle to its FrameAction (see Actions.lua) if it is currently grabbed
 ]]--
 
-function myGrabbable(someNode, wand)    
-	grabbable = {}
+function myGrabbable(someNode)    
+	local grabbable = {}
     grabbable.transgroup = myTransparentGroup{ alpha = 1.0, someNode }
 	grabbable.xform_track = osg.MatrixTransform()
 	grabbable.xform_track:addChild(grabbable.transgroup)
@@ -38,6 +39,10 @@ function myGrabbable(someNode, wand)
     
     grabbable.makeTransparent = function()
         changeTransparency(grabbable.transgroup, 0.2)
+    end
+    
+    grabbable.makeSemiTransparent = function()
+        changeTransparency(grabbable.transgroup, 0.7)
     end
     
     grabbable.makeUnTransparent = function()
