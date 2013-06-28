@@ -2,7 +2,8 @@ require "myObject"
 
 --[[
     class Sphere: inherits from (and implements) myObject
-    Constructor: Sphere()
+    Constructors: Sphere()  -- create a new Sphere using the interactive draw sequence
+                  Sphere(sphere_to_copy)   -- create a new Sphere that is an exact duplicate of the one passed
     
     implements abstract methods of myObject
     
@@ -15,23 +16,10 @@ function Sphere()
     local sphere = myObject(rawsphere)
     sphere.osgsphere = rawsphere
     
-    sphere.getCenterInWorldCoords = function()
-        return sphere:getLocalToWorldCoords():preMult(sphere.osgsphere:getCenter())
-    end
-    
-    sphere.initializeScaling = function()
-        sphere.initialRadius = sphere.osgsphere:getRadius()
-    end
-    
-    sphere.scale = function(_, newScale)
-        sphere.osgsphere:setRadius(sphere.initialRadius*newScale)
-    end
-    
-    sphere.contains = function(_, vec)
-        local vecInLocalCoords = sphere.getWorldToLocalCoords():preMult(vec)
-        local distFromCenter = (vecInLocalCoords - sphere.osgsphere:getCenter()):length()
-        if distFromCenter > sphere.osgsphere:getRadius() then return false else return true end
-    end
+    sphere.getCenterInWorldCoords = Sphere_getCenterInWorldCoords
+    sphere.initializeScaling = Sphere_initializeScaling
+    sphere.scale = Sphere_scale
+    sphere.contains = Sphere_contains
     
     -- draw the sphere
     repeat
@@ -59,4 +47,22 @@ function Sphere()
     
     -- done creating sphere
     return sphere
+end
+
+function Sphere_getCenterInWorldCoords(sphere)
+    return sphere:getLocalToWorldCoords():preMult(sphere.osgsphere:getCenter())
+end
+
+function Sphere_initializeScaling(sphere)
+    sphere.initialRadius = sphere.osgsphere:getRadius()
+end
+
+function Sphere_scale(sphere, newScale)
+    sphere.osgsphere:setRadius(sphere.initialRadius*newScale)
+end
+
+function Sphere_contains(sphere, vec)
+    local vecInLocalCoords = sphere.getWorldToLocalCoords():preMult(vec)
+    local distFromCenter = (vecInLocalCoords - sphere.osgsphere:getCenter()):length()
+    if distFromCenter > sphere.osgsphere:getRadius() then return false else return true end
 end

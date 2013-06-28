@@ -11,27 +11,24 @@ function runloop()
     local cursor = Cursor()  -- initialize the cursor
     
     while true do
-        repeat
-            for _, o in ipairs(objects) do
-                if o:contains(cursor:getPosition()) then
-                    o.cursorOver = true
-                    if not o.selected then o:makeSemiTransparent() end
-                else
-                    o.cursorOver = false
-                    if not o.selected then o:makeUnTransparent() end
-                end
+        for _, o in ipairs(objects) do
+            if o:contains(cursor:getPosition()) then
+                o.cursorOver = true
+                if not o.selected then o:makeSemiTransparent() end
+            else
+                o.cursorOver = false
+                if not o.selected then o:makeUnTransparent() end
             end
-            Actions.waitForRedraw()
-        until somethingHappens()
+        end
         
-        if open_library_button.pressed then
+        if open_library_button.justPressed then
             
             for _, o in ipairs(objects) do
                 o.selected = false  -- deselect all other objects when creating a new one. Assuming this is desired behavior.
             end
             table.insert(objects, Sphere())
         
-        elseif click_to_select_button.pressed then 
+        elseif click_to_select_button.justPressed then 
             
             local cursorOverAnything = false
             for _, o in ipairs(objects) do
@@ -56,7 +53,7 @@ function runloop()
                 end
             end
         
-        elseif hold_to_scale_button.pressed then
+        elseif hold_to_scale_button.justPressed then
             
             -- make a list of all selected objects
             local selectedObjects = {}
@@ -97,16 +94,16 @@ function runloop()
             
         end
         
-        repeat
-            Actions.waitForRedraw()
-        until not somethingHappens()  -- avoid multiple presses
+        Actions.waitForRedraw()
         
     end
 end
 
-function somethingHappens()
+function somethingHappens()   -- returns true if a button was pressed, else false
     for _, b in ipairs(allbuttons) do
-        if b.pressed then return b end
+        if b.justPressed then return true end
     end
-    return nil
+    if trigger.data ~= 0.5 then return true end
+    if analogstickY ~= 0.5 then return true end
+    return false
 end

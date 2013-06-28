@@ -2,7 +2,8 @@ require "myObject"
 
 --[[
     class Box: inherits from (and implements) myObject
-        Constructor: Box()
+        Constructors: Box()  -- create a new Box using the interactive draw sequence
+                      Box(box_to_copy)   -- create a new Box that is an exact duplicate of the one passed
         
         implements abstract methods of myObject
         
@@ -11,35 +12,14 @@ require "myObject"
 ]]--
 
 function Box()
-    print "initializing box."
     local rawbox = osg.Box(Vecf(0,0,0), 0.01)
     local box = myObject(rawbox)
     box.osgbox = rawbox
     
-    box.getCenterInWorldCoords = function()
-        return box:getLocalToWorldCoords():preMult(box.osgbox:getCenter())
-    end
-    
-    box.initializeScaling = function()
-        box.initialHalfLengths = box.osgbox.getHalfLengths()
-    end
-    
-    box.scale = function(_, newScale)
-        box.osgbox:setHalfLengths(Vecf(box.initialHalfLengths:x()*newScale, box.initialHalfLengths:y()*newScale, box.initialHalfLengths:z()*newScale))
-    end
-    
-    box.contains = function(_, vec)
-        local vecInLocalCoords = box.getWorldToLocalCoords():preMult(vec)
-        if vecInLocalCoords:x() > box.osgbox:getCenter():x() + box.osgbox:getHalfLengths():x()
-            or vecInLocalCoords:x() < box.osgbox:getCenter():x() - box.osgbox:getHalfLengths():x()
-            or vecInLocalCoords:y() > box.osgbox:getCenter():y() + box.osgbox:getHalfLengths():y()
-            or vecInLocalCoords:y() < box.osgbox:getCenter():y() - box.osgbox:getHalfLengths():y()
-            or vecInLocalCoords:z() > box.osgbox:getCenter():z() + box.osgbox:getHalfLengths():z()
-            or vecInLocalCoords:z() < box.osgbox:getCenter():z() - box.osgbox:getHalfLengths():z()
-            then return false
-        else return true
-        end
-    end
+    box.getCenterInWorldCoords = Box_getCenterInWorldCoords
+    box.initializeScaling = Box_initializeScaling
+    box.scale = Box_scale
+    box.contains = Box_contains
     
     -- draw the box
     repeat
@@ -68,6 +48,30 @@ function Box()
     box:closeForEditing()
     
     -- done creating box
-    print("done creating box")
     return box
+end
+
+function Box_getCenterInWorldCoords(box)
+    return box:getLocalToWorldCoords():preMult(box.osgbox:getCenter())
+end
+
+function Box_initializeScaling(box)
+    box.initialHalfLengths = box.osgbox.getHalfLengths()
+end
+
+function Box_scale(box, newScale)
+    box.osgbox:setHalfLengths(Vecf(box.initialHalfLengths:x()*newScale, box.initialHalfLengths:y()*newScale, box.initialHalfLengths:z()*newScale))
+end
+
+function Box_contains(box, vec)
+    local vecInLocalCoords = box.getWorldToLocalCoords():preMult(vec)
+    if vecInLocalCoords:x() > box.osgbox:getCenter():x() + box.osgbox:getHalfLengths():x()
+        or vecInLocalCoords:x() < box.osgbox:getCenter():x() - box.osgbox:getHalfLengths():x()
+        or vecInLocalCoords:y() > box.osgbox:getCenter():y() + box.osgbox:getHalfLengths():y()
+        or vecInLocalCoords:y() < box.osgbox:getCenter():y() - box.osgbox:getHalfLengths():y()
+        or vecInLocalCoords:z() > box.osgbox:getCenter():z() + box.osgbox:getHalfLengths():z()
+        or vecInLocalCoords:z() < box.osgbox:getCenter():z() - box.osgbox:getHalfLengths():z()
+        then return false
+    else return true
+    end
 end

@@ -15,7 +15,8 @@ require "myGrabbable"
         
         Protected members:
         .shapeDrawable  -- the osg::ShapeDrawable which the osg::Shape is attached to
-        :setCenter(Vec3d)  -- for moving the object's center without moving its local center. Using this function is necessary so that the object rotates around its local center and to prevent other undesirable effects
+        void :setCenter(Vec3d)  -- for moving the object's center without moving its local center. Using this function is necessary so that the object rotates around its local center and to prevent other undesirable effects
+        void :getCenterDisplacement()   -- for getting the displacement that was set using :setCenter()
         
         Private members:
         .xform  -- a PositionAttitudeTransform, which is responsible for moving the object's center (other than movement due to being grabbed, which is handled by the myGrabbable underlying the myObject) such that its local center can remain at local (0,0,0)
@@ -50,6 +51,10 @@ function myObject(osgshape, permxform)
     
     object.setCenter = function(_, vec)
         object.xform:setPosition(vec)
+    end
+    
+    object.getCenterDisplacement = function()
+        return object.xform:getPosition()
     end
     
     return object

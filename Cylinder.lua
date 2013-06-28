@@ -2,7 +2,8 @@ require "myObject"
 
 --[[
     class Cylinder: inherits from (and implements) myObject
-        Constructor: Cylinder()
+        Constructors: Cylinder()  -- create a new Cylinder using the interactive draw sequence
+                      Cylinder(cylinder_to_copy)   -- create a new Cylinder that is an exact duplicate of the one passed
         
         implements all methods of myObject
         
@@ -10,42 +11,30 @@ require "myObject"
         .osgcylinder  -- the underlying osg::Cylinder
 ]]--
 
-function Cylinder()
-    local rawcylinder = osg.Cylinder(Vecf{0,0,0}, 0.1, 0.05)
+function Cylinder(cylinder_to_copy)
+    local rawcylinder;
+    if cylinder_to_copy then
+        rawcylinder = osg.Cylinder(cylinder_to_copy.osgcylinder:getCenter(), cylinder_to_copy.osgcylinder:getRadius(), cylinder_to_copy.osgcylinder:getHeight())
+    else
+        rawcylinder = osg.Cylinder(Vecf{0,0,0}, 0.1, 0.05)
+    end
+
     local cylinder = myObject(rawcylinder, Transform{ orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) })
     cylinder.osgcylinder = rawcylinder
     
-    cylinder.getCenterInWorldCoords = function()
-        return cylinder:getLocalToWorldCoords():preMult(cylinder.osgcylinder:getCenter())
-    end
-
-    cylinder.initializeScaling = function()
-        cylinder.initialRadius = cylinder.osgcylinder:getRadius()
-        cylinder.initialHeight = cylinder.osgcylinder:getHeight()
-    end
-
-    cylinder.scale = function(_, newScale)   -- _ will actually be the cylinder object, but we're just using our local copy 
-        cylinder.osgcylinder:setRadius(cylinder.initialRadius*newScale)
-        cylinder.osgcylinder:setHeight(cylinder.initialHeight*newScale)
-    end
-
-    cylinder.contains = function(_, vec)
-        local vecInLocalCoords = cylinder.getWorldToLocalCoords():preMult(vec)
-        --print("vecInLocalCoords calculated as "); printVec(vecInLocalCoords)
-        --reportStats(cylinder)
-        if vecInLocalCoords:y() > cylinder.osgcylinder:getCenter():y()+0.5*cylinder.osgcylinder:getHeight()
-            or vecInLocalCoords:y() < cylinder.osgcylinder:getCenter():y()-0.5*cylinder.osgcylinder:getHeight()
-            then return false
-        end
-        local deltax, deltay, deltaz = getDeltas(vecInLocalCoords, cylinder.osgcylinder:getCenter())
-        local xzDistanceFromCenter = (deltax^2+deltaz^2)^0.5
-        if xzDistanceFromCenter > cylinder.osgcylinder:getRadius() then return false end
-        return true
+    cylinder.getCenterInWorldCoords = Cylinder_getCenterInWorldCoords
+    cylinder.initializeScaling = Cylinder_initializeScaling
+    cylinder.scale = Cylinder_scale
+    cylinder.contains = Cylinder_contains
+    
+    if cylinder_to_copy then
+        cylinder:setCenter(cylinder_to_copy:getCenterDisplacement())
+        return cylinder
+        -- copy complete
     end
     
     -- draw the cylinder
     repeat
-        --print("Cursor position is "); printVec(cursor.getPosition())
         Actions.waitForRedraw()
     until hold_to_draw_button.pressed
 
@@ -64,7 +53,6 @@ function Cylinder()
         if (newradius > 0.1) then
             cylinder.osgcylinder:setRadius( newradius )
         end
-        --reportStats(cylinder)
         Actions.waitForRedraw()
     until not hold_to_draw_button.pressed
 
@@ -86,7 +74,6 @@ function Cylinder()
             cylinder.osgcylinder:setHeight(math.abs(deltay))
         end
         cylinder:setCenter(Vec(centerPos:x(), centerPos:y()+0.5*deltay, centerPos:z()))    -- the center is halfway up the height
-        --reportStats(cylinder)
         Actions.waitForRedraw()
     until not hold_to_draw_button.pressed
 
@@ -98,6 +85,32 @@ function Cylinder()
     return cylinder
 end
 
+function Cylinder_getCenterInWorldCoords(cylinder)
+    return cylinder:getLocalToWorldCoords():preMult(cylinder.osgcylinder:getCenter())
+end
+
+function Cylinder_initializeScaling(cylinder)
+    cylinder.initialRadius = cylinder.osgcylinder:getRadius()
+    cylinder.initialHeight = cylinder.osgcylinder:getHeight()
+end
+
+function Cylinder_scale(cylinder, newScale)
+    cylinder.osgcylinder:setRadius(cylinder.initialRadius*newScale)
+    cylinder.osgcylinder:setHeight(cylinder.initialHeight*newScale)
+end
+
+function Cylinder_contains(cylinder, vec)
+    local vecInLocalCoords = cylinder.getWorldToLocalCoords():preMult(vec)
+    if vecInLocalCoords:y() > cylinder.osgcylinder:getCenter():y()+0.5*cylinder.osgcylinder:getHeight()
+        or vecInLocalCoords:y() < cylinder.osgcylinder:getCenter():y()-0.5*cylinder.osgcylinder:getHeight()
+        then return false
+    end
+    local deltax, deltay, deltaz = getDeltas(vecInLocalCoords, cylinder.osgcylinder:getCenter())
+    local xzDistanceFromCenter = (deltax^2+deltaz^2)^0.5
+    if xzDistanceFromCenter > cylinder.osgcylinder:getRadius() then return false end
+    return true
+end
+    
 -- debugging
 function reportStats(cylinder)
     print("Cylinder stats: Center is "); printVec(cylinder.osgcylinder:getCenter()); print("in local coordinates; or in world coordinates it is "); printVec(cylinder:getCenterInWorldCoords()); print("Height is ", cylinder.osgcylinder:getHeight(), " and radius is ", cylinder.osgcylinder:getRadius())

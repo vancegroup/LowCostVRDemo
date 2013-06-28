@@ -2,7 +2,8 @@ require "myObject"
 
 --[[
     class Cone: inherits from (and implements) myObject
-    Constructor: Cone()
+    Constructors: Cone()  -- create a new Cone using the interactive draw sequence
+                  Cone(cone_to_copy)   -- create a new Cone that is an exact duplicate of the one passed
     
     implements abstract methods of myObject
     
@@ -16,41 +17,12 @@ function Cone()
     local cone = myObject(rawcone, Transform{ orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) })
     cone.osgcone = rawcone
     
-    cone.getCenterInWorldCoords = function()
-        return cone:getLocalToWorldCoords():preMult(cone.osgcone:getCenter())
-    end
+    cone.getCenterInWorldCoords = Cone_getCenterInWorldCoords
+    cone.initializeScaling = Cone_initializeScaling
+    cone.scale = Cone_scale
+    cone.contains = Cone_contains
     
-    cone.initializeScaling = function()
-        cone.initialRadius = cone.osgcone:getRadius()
-        cone.initialHeight = cone.osgcone:getHeight()
-    end
-    
-    cone.scale = function(_, newScale)
-        cone.osgcone:setRadius(cone.initialRadius*newScale)
-        cone.osgcone:setHeight(cone.initialHeight*newScale)
-    end
-    
-    cone.contains = function(_, vec)
-        local vecInLocalCoords = cone.getWorldToLocalCoords():preMult(vec)
-        local heightUpFromBase = vecInLocalCoords:y() - (cone.osgcone:getCenter():y()-0.25*cone.osgcone:getHeight())   -- center is at the center of mass of the cone, 25% of the way up from the base
-        local percentHeight = heightUpFromBase / cone.osgcone:getHeight()
-        if percentHeight > 1 or percentHeight < 0 then -- too high or too low to hit the cone
-            return false
-        else
-            local radius = cone:getRadiusAtPercentHeight(percentHeight)
-            local deltax, deltay, deltaz = getDeltas(vecInLocalCoords, cone.osgcone:getCenter())
-            local xzDistanceFromCenter = (deltax^2+deltaz^2)^0.5
-            if xzDistanceFromCenter > radius then
-                return false
-            else
-                return true
-            end
-        end
-    end
-    
-    cone.getRadiusAtPercentHeight = function(_, percent)
-        return (1.0-percent)*cone.osgcone:getRadius()
-    end
+    cone.getRadiusAtPercentHeight = Cone_getRadiusAtPercentHeight
     
     -- draw the cone
     repeat
@@ -103,3 +75,39 @@ function Cone()
     -- done creating cone
     return cone
 end
+
+function Cone_getCenterInWorldCoords(cone)
+    return cone:getLocalToWorldCoords():preMult(cone.osgcone:getCenter())
+end
+
+function Cone_initializeScaling(cone)
+    cone.initialRadius = cone.osgcone:getRadius()
+    cone.initialHeight = cone.osgcone:getHeight()
+end
+
+function Cone_scale(cone, newScale)
+    cone.osgcone:setRadius(cone.initialRadius*newScale)
+    cone.osgcone:setHeight(cone.initialHeight*newScale)
+end
+
+function Cone_contains(cone, vec)
+    local vecInLocalCoords = cone.getWorldToLocalCoords():preMult(vec)
+    local heightUpFromBase = vecInLocalCoords:y() - (cone.osgcone:getCenter():y()-0.25*cone.osgcone:getHeight())   -- center is at the center of mass of the cone, 25% of the way up from the base
+    local percentHeight = heightUpFromBase / cone.osgcone:getHeight()
+    if percentHeight > 1 or percentHeight < 0 then -- too high or too low to hit the cone
+        return false
+    else
+        local radius = cone:getRadiusAtPercentHeight(percentHeight)
+        local deltax, deltay, deltaz = getDeltas(vecInLocalCoords, cone.osgcone:getCenter())
+        local xzDistanceFromCenter = (deltax^2+deltaz^2)^0.5
+        if xzDistanceFromCenter > radius then
+            return false
+        else
+            return true
+        end
+    end
+end
+
+function Cone_getRadiusAtPercentHeight(cone, percent)
+        return (1.0-percent)*cone.osgcone:getRadius()
+    end
