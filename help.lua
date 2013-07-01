@@ -4,6 +4,7 @@ require "myShapes"
 require "myColor"
 require "osgDB"
 require "gldef"
+require "myTransparentGroup"
 
 vrjLua.appendToModelSearchPath(getScriptFilename())
 --libraryButton = gadget.DigitalInterface('VJButton1')
@@ -123,7 +124,6 @@ colorIndex = 1
 shapeIndex = 1
 -- returns shape, color
 libraryPressed = 1
---RelativeTo.Room:addChild(xform1)
 
 Actions.addFrameAction(function()
 	while true do
@@ -140,11 +140,17 @@ Actions.addFrameAction(function()
 				print("shapeIndex", shapeIndex)
 				libraryPressed = 1
 			elseif library_switch_up_button.justPressed or library_switch_down_button.justPressed then
+				transpCM = myTransparentGroup(colorMenu[colorIndex].image)
+				transpSM = myTransparentGroup(shapeMenu[shapeIndex].image)
 				if activeMenu == 1 then
 					activeMenu = 2
+					cmxform:replaceChild(colorMenu[colorIndex].image, transpCM.image)
+					smxform:replaceChild(transpSM.image, shapeMenu[shapeIndex].image)
 					print("switching to shapes")
 				else
 					activeMenu = 1
+					cmxform:replaceChild(transpCM.image, colorMenu[colorIndex].image)
+					smxform:replaceChild(shapeMenu[shapeIndex].image, transpSM.image)
 					print("switching to color")
 				end
 			elseif library_scroll_left_button.justPressed then
