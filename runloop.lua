@@ -103,7 +103,5 @@ function somethingHappens()   -- returns true if a button was pressed, else fals
     for _, b in ipairs(allbuttons) do
         if b.justPressed then return true end
     end
-    if trigger.data ~= 0.5 then return true end
-    if analogstickY ~= 0.5 then return true end
     return false
 end
