@@ -26,6 +26,7 @@ function Cylinder(cylinder_to_copy)
     cylinder.initializeScaling = Cylinder_initializeScaling
     cylinder.scale = Cylinder_scale
     cylinder.contains = Cylinder_contains
+    cylinder.removeObject = Cylinder_removeObject
     
     if cylinder_to_copy then
         cylinder:setCenter(cylinder_to_copy:getCenterDisplacement())
@@ -109,6 +110,10 @@ function Cylinder_contains(cylinder, vec)
     local xzDistanceFromCenter = (deltax^2+deltaz^2)^0.5
     if xzDistanceFromCenter > cylinder.osgcylinder:getRadius() then return false end
     return true
+end
+
+function Cylinder_removeObject(cylinder)
+    RelativeTo.World:removeChild(cylinder.attach_here)
 end
     
 -- debugging

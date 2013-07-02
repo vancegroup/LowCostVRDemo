@@ -26,7 +26,26 @@ function runloop()
             for _, o in ipairs(objects) do
                 o.selected = false  -- deselect all other objects when creating a new one. Assuming this is desired behavior.
             end
-            table.insert(objects, Sphere())
+            
+            -- code for interacting with Lanya's library code, when that gets pulled in
+            --[[
+            shape, color = libraryCalled()
+            
+            if string.find(shape, "box") then
+                table.insert(objects, Box())
+            elseif string.find(shape, "cone") then
+                table.insert(objects, Cone())
+            elseif string.find(shape, "cylinder") then
+                table.insert(objects, Cylinder())
+            elseif string.find(shape, "pyramid") then
+                print("Sorry, pyramid not supported yet.")
+            elseif string.find(shape, "sphere") then
+                table.insert(objects, Sphere())
+            else
+                print("Unrecognized return value from libraryCalled(): ", shape)
+            end
+            ]]--
+            table.insert(objects, Cone())
         
         elseif click_to_select_button.justPressed then 
             
@@ -92,6 +111,43 @@ function runloop()
                 grab(object)  -- because we ungrabbed them during initialization of the operation
             end
             
+        elseif click_to_duplicate_button.justPressed then
+            
+            local selectedObjects = {}
+            for _, object in ipairs(objects) do
+                if object.selected then table.insert(selectedObjects, object) end
+            end
+            
+            for _, object in ipairs(selectedObjects) do
+                local newObject = nil
+                if object.osgbox then
+                    newObject = Box(object)
+                elseif object.osgcone then
+                    newObject = Cone(object)
+                elseif object.osgcylinder then
+                    newObject = Cylinder(object)
+                elseif object.osgsphere then
+                    newObject = Sphere(object)
+                else 
+                    print("Error: unsupported object for duplicate")
+                end
+                table.insert(objects, newObject)
+                object.selected = false  -- deselect the old (parent) object
+                ungrab(object)
+                newObject.selected = true  -- select the new (copy) object
+                grab(newObject)
+            end
+        
+        elseif click_to_delete_button.justPressed then
+            
+            for index = #objects, 1, -1 do  -- iterate backwards through objects, this makes table.remove safe
+                local object = objects[index]
+                if object.selected then
+                    object:removeObject()
+                    table.remove(objects, index)
+                end
+            end
+        
         end
         
         Actions.waitForRedraw()
@@ -99,11 +155,3 @@ function runloop()
     end
 end
 
-function somethingHappens()   -- returns true if a button was pressed, else false
-    for _, b in ipairs(allbuttons) do
-        if b.justPressed then return true end
-    end
-    if trigger.data ~= 0.5 then return true end
-    if analogstickY ~= 0.5 then return true end
-    return false
-end

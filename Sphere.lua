@@ -11,8 +11,14 @@ require "myObject"
     .osgsphere  -- the underlying osg::Sphere
 ]]--
 
-function Sphere()
-    local rawsphere = osg.Sphere(Vecf(0,0,0), 0.01)
+function Sphere(sphere_to_copy)
+    local rawsphere; 
+    if sphere_to_copy then
+        rawsphere = osg.Sphere(sphere_to_copy.osgsphere:getCenter(), sphere_to_copy.osgsphere:getRadius())
+    else
+        rawsphere = osg.Sphere(Vecf(0,0,0), 0.01)
+    end
+    
     local sphere = myObject(rawsphere)
     sphere.osgsphere = rawsphere
     
@@ -20,6 +26,13 @@ function Sphere()
     sphere.initializeScaling = Sphere_initializeScaling
     sphere.scale = Sphere_scale
     sphere.contains = Sphere_contains
+    sphere.removeObject = Sphere_removeObject
+    
+    if sphere_to_copy then
+        sphere:setCenter(sphere_to_copy:getCenterDisplacement())
+        return sphere
+        -- copy complete
+    end
     
     -- draw the sphere
     repeat
@@ -65,4 +78,8 @@ function Sphere_contains(sphere, vec)
     local vecInLocalCoords = sphere.getWorldToLocalCoords():preMult(vec)
     local distFromCenter = (vecInLocalCoords - sphere.osgsphere:getCenter()):length()
     if distFromCenter > sphere.osgsphere:getRadius() then return false else return true end
+end
+
+function Sphere_removeObject(sphere)
+    RelativeTo.World:removeChild(sphere.attach_here)
 end
