@@ -4,9 +4,10 @@ require "myShapes"
 require "myColor"
 require "osgDB"
 require "gldef"
+require "myTransparentGroup"
 
 vrjLua.appendToModelSearchPath(getScriptFilename())
-libraryButton = gadget.DigitalInterface('VJButton1')
+--libraryButton = gadget.DigitalInterface('VJButton1')
 
 function createImageObject(arg)
 	local scale = arg.scale or 1
@@ -93,11 +94,6 @@ gray = myColor(cmimage9, osg.Vec4f(0.5, 0.5, 0.5, 0.0), "gray")
 
 colorMenu = {red, orange, yellow, green, blue, purple, pink, brown, gray}
 
--- initialize to 1 and 1 automatically
-colorIndex = 1
-shapeIndex = 1
--- returns shape, color
-
 menu = {shapeMenu, colorMenu}
 
 -- set up position to draw menus
@@ -123,72 +119,73 @@ xform1:addChild(cmxform)
 smxform:addChild(smimage1)
 xform1:addChild(smxform)
 
-RelativeTo.Room:addChild(xform1)
+-- initialize to 1 and 1 automatically
+colorIndex = 1
+shapeIndex = 1
+-- returns shape, color
+libraryPressed = 1
 
-
---lala = makeShape(colorMenu[4].vec)
---RelativeTo.World:addChild(lala)
-
-
---RelativeTo.Room:addChild(xform1)
---RelativeTo.Room:addChild(xform2)
 Actions.addFrameAction(function()
 	while true do
-		--[[
-		repeat
-			Actions.waitForRedraw()
-		until libraryButton.justPressed
-		
-		RelativeTo.Room:addChild(xform1)
-		RelativeTo.Room:addChild(xform2)
-
-		repeat
-			Actions.waitForRedraw()
-		until libraryButton.justPressed
-			RelativeTo.Room:removeChild(xform1)
-			RelativeTo.Room:removeChild(xform2)
-		]]
-		--[[
-		repeat
-			Actions.waitForRedraw()
-		until libraryButton.justPressed
-			RelativeTo.Room:addChild(xform1)
-		]]
-		repeat 
-			Actions.waitForRedraw()
-		until somethingHappens()
-		
-		if hold_to_adjust_view_button.justPressed then
-			if colorIndex > 1 and colorIndex <= 9 then
-				colorIndex = colorIndex - 1
-				cmxform:replaceChild(colorMenu[colorIndex+1].image, colorMenu[colorIndex].image)
-			else 
-				colorIndex = 1
+		if libraryPressed == 1 then 
+			if open_library_button.justPressed then
+				RelativeTo.Room:addChild(xform1)
+				libraryPressed = 0
+				activeMenu = 1
 			end
-			print(colorIndex)
-		
-		elseif click_to_duplicate_button.justPressed then
-			if colorIndex >= 1 and colorIndex < 9 then
-				colorIndex = colorIndex + 1
-				cmxform:replaceChild(colorMenu[colorIndex-1].image, colorMenu[colorIndex].image)
-
-			else
-				colorIndex = 9
-				xform = makeShape(colorMenu[colorIndex].vec)
+		else
+			if open_library_button.justPressed then
+				RelativeTo.Room:removeChild(xform1)
+				print("colorIndex", colorIndex)
+				print("shapeIndex", shapeIndex)
+				libraryPressed = 1
+			elseif library_switch_up_button.justPressed or library_switch_down_button.justPressed then
+				transpCM = myTransparentGroup(colorMenu[colorIndex].image)
+				transpSM = myTransparentGroup(shapeMenu[shapeIndex].image)
+				if activeMenu == 1 then
+					activeMenu = 2
+					cmxform:replaceChild(colorMenu[colorIndex].image, transpCM.image)
+					smxform:replaceChild(transpSM.image, shapeMenu[shapeIndex].image)
+					print("switching to shapes")
+				else
+					activeMenu = 1
+					cmxform:replaceChild(transpCM.image, colorMenu[colorIndex].image)
+					smxform:replaceChild(shapeMenu[shapeIndex].image, transpSM.image)
+					print("switching to color")
+				end
+			elseif library_scroll_left_button.justPressed then
+				print("moving left")
+				if activeMenu == 2 then 
+					if colorIndex > 1 and colorIndex <= 9 then
+						colorIndex = colorIndex - 1
+						cmxform:replaceChild(colorMenu[colorIndex+1].image, colorMenu[colorIndex].image)
+					end			
+				else 
+					if shapeIndex > 1 and shapeIndex <= 5 then
+						shapeIndex = shapeIndex - 1
+						smxform:replaceChild(shapeMenu[shapeIndex + 1].image, shapeMenu[shapeIndex].image)
+					end
+				end
+			elseif library_scroll_right_button.justPressed then
+				print ("moving right")
+				if activeMenu == 2 then
+					print("changing color to the right")
+					if colorIndex >= 1 and colorIndex < 9 then
+						colorIndex = colorIndex + 1
+						cmxform:replaceChild(colorMenu[colorIndex-1].image, colorMenu[colorIndex].image)
+					end
+				else
+					print ("changing shape to the right")
+					if shapeIndex >= 1 and shapeIndex < 5 then
+						shapeIndex = shapeIndex + 1
+						smxform:replaceChild(shapeMenu[shapeIndex - 1].image, shapeMenu[shapeIndex].image)
+					end
+				end
 			end
-			print(colorIndex)
-		--[[
-		elseif libraryButton.justPressed then
-			RelativeTo.Room:removeChild(xform1)]]
 		end
+		Actions.waitForRedraw()
 	end
 end)
 
-function somethingHappens()
-    for _, b in ipairs(allbuttons) do
-        if b.pressed then return b end
-    end
-    return nil
-end
 
 -- [[ How are you going to adjust for different screen sizes??]]
