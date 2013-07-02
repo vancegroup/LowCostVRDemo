@@ -7,7 +7,6 @@ require "gldef"
 require "myTransparentGroup"
 
 vrjLua.appendToModelSearchPath(getScriptFilename())
---libraryButton = gadget.DigitalInterface('VJButton1')
 
 function createImageObject(arg)
 	local scale = arg.scale or 1
@@ -25,18 +24,6 @@ function createImageObject(arg)
 
 	local xform = Transform{chart}
 	xform:setScale(Vec(width,height,.005))
-	return xform
-end
-
-
-function makeShape(color)
-	thing = osg.Box(Vecf(0.5, 0.5, 0.5), 0.1, 0.5, 0.3)
-	shapeDrawable = osg.ShapeDrawable(thing)
-	shapeDrawable:setColor(color)
-	cubeGeode = osg.Geode()
-	cubeGeode:addDrawable(shapeDrawable)
-	xform = Transform{ position = {1.0, 2.0, 0.0}} 
-	xform:addChild(cubeGeode)
 	return xform
 end
 
@@ -74,11 +61,11 @@ cmimage7 = createImageObject({width = 1820, height =250, img = cmImgPath7, scale
 cmimage8 = createImageObject({width = 1820, height =250, img = cmImgPath8, scale = 5})
 cmimage9 = createImageObject({width = 1820, height =250, img = cmImgPath9, scale = 5})
 
-sphere = myShapes(smimage1, device, 0)
-cube = myShapes(smimage2 , device, 1)
-pyramid = myShapes(smimage3, device, 2)
-cylinder = myShapes(smimage4, device, 3)
-cone = myShapes(smimage5, device, 4)
+sphere = myShapes(smimage1, "sphere")
+cube = myShapes(smimage2 , "cube")
+pyramid = myShapes(smimage3, "pyramid")
+cylinder = myShapes(smimage4, "cylinder")
+cone = myShapes(smimage5, "cone")
 
 shapeMenu = {sphere, cube, pyramid, cylinder, cone}
 
@@ -98,12 +85,12 @@ menu = {shapeMenu, colorMenu}
 
 -- set up position to draw menus
 cmxform = Transform{
-	position={0,0.43,0},
+	position={0,0.43,-10},
 	orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
 }
 	
 smxform = Transform{
-	position={0,1.07,0},
+	position={0,1.07,-10},
 	orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
 }
 
@@ -114,17 +101,19 @@ xform1:setAutoScaleToScreen(0)
 xform1:setPosition(Vec(0.5, 1.0, 0.0))
 
 cmxform:addChild(cmimage1)
-xform1:addChild(cmxform)
+transpCM = myTransparentGroup({cmxform})
+xform1:addChild(transpCM)
 
 smxform:addChild(smimage1)
-xform1:addChild(smxform)
+transpSM = myTransparentGroup({smxform})
+xform1:addChild(transpSM)
 
 -- initialize to 1 and 1 automatically
 colorIndex = 1
 shapeIndex = 1
--- returns shape, color
 libraryPressed = 1
 
+--[[
 Actions.addFrameAction(function()
 	while true do
 		if libraryPressed == 1 then 
@@ -132,60 +121,67 @@ Actions.addFrameAction(function()
 				RelativeTo.Room:addChild(xform1)
 				libraryPressed = 0
 				activeMenu = 1
+				changeTransparency(transpCM, 0.5)
 			end
 		else
+]]--
+function libraryCalled()
+	RelativeTo.Room:addChild(xform1)
+	activeMenu = 1
+	changeTransparency(transpCM, 0.5)
+	Actions.addFrameAction(function()
+		while true do
 			if open_library_button.justPressed then
 				RelativeTo.Room:removeChild(xform1)
 				print("colorIndex", colorIndex)
 				print("shapeIndex", shapeIndex)
 				libraryPressed = 1
 			elseif library_switch_up_button.justPressed or library_switch_down_button.justPressed then
-				transpCM = myTransparentGroup(colorMenu[colorIndex].image)
-				transpSM = myTransparentGroup(shapeMenu[shapeIndex].image)
-				if activeMenu == 1 then
-					activeMenu = 2
-					cmxform:replaceChild(colorMenu[colorIndex].image, transpCM.image)
-					smxform:replaceChild(transpSM.image, shapeMenu[shapeIndex].image)
+				if activeMenu == 2 then
+					activeMenu = 1
+					changeTransparency(transpCM, 0.5)
+					changeTransparency(transpSM, 1.0)
 					print("switching to shapes")
 				else
-					activeMenu = 1
-					cmxform:replaceChild(transpCM.image, colorMenu[colorIndex].image)
-					smxform:replaceChild(shapeMenu[shapeIndex].image, transpSM.image)
+					activeMenu = 2
+					changeTransparency(transpCM, 1.0)
+					changeTransparency(transpSM, 0.5)
 					print("switching to color")
 				end
 			elseif library_scroll_left_button.justPressed then
-				print("moving left")
-				if activeMenu == 2 then 
-					if colorIndex > 1 and colorIndex <= 9 then
-						colorIndex = colorIndex - 1
-						cmxform:replaceChild(colorMenu[colorIndex+1].image, colorMenu[colorIndex].image)
-					end			
-				else 
+				if activeMenu == 1 then 
+					print("moving left one shape")
 					if shapeIndex > 1 and shapeIndex <= 5 then
 						shapeIndex = shapeIndex - 1
 						smxform:replaceChild(shapeMenu[shapeIndex + 1].image, shapeMenu[shapeIndex].image)
 					end
+				else 			
+					print("moving left one color")
+					if colorIndex > 1 and colorIndex <= 9 then
+						colorIndex = colorIndex - 1
+						cmxform:replaceChild(colorMenu[colorIndex+1].image, colorMenu[colorIndex].image)
+					end			
 				end
 			elseif library_scroll_right_button.justPressed then
-				print ("moving right")
-				if activeMenu == 2 then
-					print("changing color to the right")
-					if colorIndex >= 1 and colorIndex < 9 then
-						colorIndex = colorIndex + 1
-						cmxform:replaceChild(colorMenu[colorIndex-1].image, colorMenu[colorIndex].image)
-					end
-				else
+				if activeMenu == 1 then
 					print ("changing shape to the right")
 					if shapeIndex >= 1 and shapeIndex < 5 then
 						shapeIndex = shapeIndex + 1
 						smxform:replaceChild(shapeMenu[shapeIndex - 1].image, shapeMenu[shapeIndex].image)
 					end
+				else
+					print("changing color to the right")
+					if colorIndex >= 1 and colorIndex < 9 then
+						colorIndex = colorIndex + 1
+						cmxform:replaceChild(colorMenu[colorIndex-1].image, colorMenu[colorIndex].image)
+					end
 				end
+			elseif library_confirm_button.justPressed then
+				return shapeMenu[shapeIndex].name, colorMenu[colorIndex].vec
 			end
+			Actions.waitForRedraw()
 		end
-		Actions.waitForRedraw()
-	end
-end)
-
+	end)
+end
 
 -- [[ How are you going to adjust for different screen sizes??]]
