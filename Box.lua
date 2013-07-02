@@ -11,8 +11,16 @@ require "myObject"
         .osgbox  -- the underlying osg::Box
 ]]--
 
-function Box()
-    local rawbox = osg.Box(Vecf(0,0,0), 0.01)
+function Box(box_to_copy)
+    local rawbox;
+    if box_to_copy then
+        rawbox = osg.Box()
+        rawbox:setCenter(box_to_copy.osgbox:getCenter())  -- due to JuggLua bug, the overloaded constructor can't be called
+        rawbox:setHalfLengths(box_to_copy.osgbox:getHalfLengths())
+    else
+        rawbox = osg.Box(Vecf(0,0,0), 0.01)
+    end
+    
     local box = myObject(rawbox)
     box.osgbox = rawbox
     
@@ -20,6 +28,13 @@ function Box()
     box.initializeScaling = Box_initializeScaling
     box.scale = Box_scale
     box.contains = Box_contains
+    box.removeObject = Box_removeObject
+    
+    if box_to_copy then
+        box:setCenter(box_to_copy:getCenterDisplacement())
+        return box
+        -- copy complete
+    end
     
     -- draw the box
     repeat
@@ -74,4 +89,8 @@ function Box_contains(box, vec)
         then return false
     else return true
     end
+end
+
+function Box_removeObject(box)
+    RelativeTo.World:removeChild(box.attach_here)
 end

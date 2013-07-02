@@ -12,8 +12,13 @@ require "myObject"
     float :getRadiusAtPercentHeight(float)  -- pass the percent up the height, where 1 is the tip and 0 is the base, receive the radius at that height
 ]]--
 
-function Cone()
-    local rawcone = osg.Cone(Vecf(0,0,0), 0.05, 0.01)
+function Cone(cone_to_copy)
+    local rawcone; 
+    if cone_to_copy then
+        rawcone = osg.Cone(cone_to_copy.osgcone:getCenter(), cone_to_copy.osgcone:getRadius(), cone_to_copy.osgcone:getHeight())
+    else
+        rawcone = osg.Cone(Vecf(0,0,0), 0.05, 0.01)
+    end
     local cone = myObject(rawcone, Transform{ orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) })
     cone.osgcone = rawcone
     
@@ -21,8 +26,15 @@ function Cone()
     cone.initializeScaling = Cone_initializeScaling
     cone.scale = Cone_scale
     cone.contains = Cone_contains
+    cone.removeObject = Cone_removeObject
     
     cone.getRadiusAtPercentHeight = Cone_getRadiusAtPercentHeight
+    
+    if cone_to_copy then
+        cone:setCenter(cone_to_copy:getCenterDisplacement())
+        return cone
+        -- copy complete
+    end
     
     -- draw the cone
     repeat
@@ -106,6 +118,10 @@ function Cone_contains(cone, vec)
             return true
         end
     end
+end
+
+function Cone_removeObject(cone)
+    RelativeTo.World:removeChild(cone.attach_here)
 end
 
 function Cone_getRadiusAtPercentHeight(cone, percent)

@@ -12,6 +12,7 @@ require "myGrabbable"
         abstract (Lua)bool :contains(Vec3f)   -- whether the object contains the point passed as argument
         void :openForEditing()
         void :closeForEditing()
+        abstract void :removeObject()  -- removes the object from the environment
         
         Protected members:
         .shapeDrawable  -- the osg::ShapeDrawable which the osg::Shape is attached to
