@@ -28,8 +28,6 @@ function makeDigitalInterface(analog, name, dir)
                 _G[name].justChanged = true
                 _G[name].pressed = true
                 Actions.waitForRedraw()
-                -- during this frame the just* will be true for everyone else
-                Actions.waitForRedraw()
                 
                 -- pressed but not just pressed (since last frame)
                 _G[name].justPressed = false
@@ -61,8 +59,6 @@ function makeDigitalInterface(analog, name, dir)
                 _G[name].justPressed = true
                 _G[name].justChanged = true
                 _G[name].pressed = true
-                Actions.waitForRedraw()
-                -- during this frame the just* will be true for everyone else
                 Actions.waitForRedraw()
                 
                 -- pressed but not just pressed (since last frame)

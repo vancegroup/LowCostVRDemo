@@ -1,5 +1,6 @@
 require "controls"
 require "cursor"
+require "library"
 require "Box"
 require "Cone"
 require "Cylinder"
@@ -27,11 +28,9 @@ function runloop()
                 o.selected = false  -- deselect all other objects when creating a new one. Assuming this is desired behavior.
             end
             
-            -- code for interacting with Lanya's library code, when that gets pulled in
-            --[[
             shape, color = libraryCalled()
             
-            if string.find(shape, "box") then
+            if string.find(shape, "cube") then
                 table.insert(objects, Box())
             elseif string.find(shape, "cone") then
                 table.insert(objects, Cone())
@@ -44,8 +43,6 @@ function runloop()
             else
                 print("Unrecognized return value from libraryCalled(): ", shape)
             end
-            ]]--
-            table.insert(objects, Cone())
         
         elseif click_to_select_button.justPressed then 
             
