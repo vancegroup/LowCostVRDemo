@@ -1,7 +1,7 @@
-require "myObject"
+require "myShapeObject"
 
 --[[
-    class Sphere: inherits from (and implements) myObject
+    class Sphere: inherits from (and implements) myShapeObject
         Constructors: Sphere(color)  -- create a new Sphere of the specified (Vec4f) color using the interactive draw sequence
                       Sphere(sphere_to_copy)   -- create a new Sphere that is an exact duplicate of the one passed
         
@@ -21,7 +21,7 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
         rawsphere = osg.Sphere(Vecf(0,0,0), 0.01)
     end
     
-    local sphere = myObject(rawsphere)
+    local sphere = myShapeObject(rawsphere)
     sphere.osgsphere = rawsphere
     
     sphere:setColor(copy and arg:getColor() or arg)  -- arg could be either a Sphere or a color
@@ -79,7 +79,7 @@ function Sphere_scale(sphere, newScale)
 end
 
 function Sphere_contains(sphere, vec)
-    local vecInLocalCoords = sphere.getWorldToLocalCoords():preMult(vec)
+    local vecInLocalCoords = sphere:getWorldToLocalCoords():preMult(vec)
     local distFromCenter = (vecInLocalCoords - sphere.osgsphere:getCenter()):length()
     if distFromCenter > sphere.osgsphere:getRadius() then return false else return true end
 end

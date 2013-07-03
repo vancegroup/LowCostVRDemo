@@ -2,7 +2,7 @@ require "myGrabbable"
 
 --[[
     abstract base class myObject: inherits from myGrabbable
-        Constructor: myObject(osg::Shape, [OPTIONAL]permxform)  -- pass an osg::Shape such as an osg::Cylinder or osg::Box; may also pass a permanent transform to permanently reorient it
+        Constructor: myObject(grabbable)   -- pass the Grabbable which this object will be based on
         
         (Lua)bool .selected   -- whether object is selected or not (a Lua bool not an osg bool)
         (Lua)bool .cursorOver   -- whether the cursor is over the object or not
@@ -10,55 +10,29 @@ require "myGrabbable"
         abstract void :initializeScaling()  -- get ready for subsequent calls to scale()
         abstract void :scale(float)
         abstract (Lua)bool :contains(Vec3f)   -- whether the object contains the point passed as argument
-        void :setColor(Vec4f)
-        Vec4f :getColor()
-        void :openForEditing()
-        void :closeForEditing()
+        abstract void :setColor(Vec4f)
+        abstract Vec4f :getColor()
+        abstract void :openForEditing()
+        abstract void :closeForEditing()
         abstract void :removeObject()  -- removes the object from the environment
         
         Protected members:
-        .shapeDrawable  -- the osg::ShapeDrawable which the osg::Shape is attached to
         void :setCenter(Vec3d)  -- for moving the object's center without moving its local center. Using this function is necessary so that the object rotates around its local center and to prevent other undesirable effects
         void :getCenterDisplacement()   -- for getting the displacement that was set using :setCenter()
         
         Private members:
         .xform  -- a PositionAttitudeTransform, which is responsible for moving the object's center (other than movement due to being grabbed, which is handled by the myGrabbable underlying the myObject) such that its local center can remain at local (0,0,0)
+        
 ]]--
 
-function myObject(osgshape, permxform)
-    local shapeDrawable = osg.ShapeDrawable(osgshape)
-    local geode = osg.Geode()
-    geode:addDrawable(shapeDrawable)
-    local object;
-    if permxform then
-        permxform:addChild(geode)
-        object = myGrabbable(permxform)
-    else
-        object = myGrabbable(geode)
-    end
-    object.shapeDrawable = shapeDrawable
-    object.xform = Transform { position = {0,0,0} }
+function myObject(grabbable)
+    local object = grabbable
+    object.xform = Transform { position = {0,0,0} }   -- this explained above in the class description
     object.xform:addChild(object.attach_here)
     object.attach_here = object.xform  -- update the attach_here to the new outermost node in the myObject construct
     
     object.selected = false
     object.cursorOver = false
-    
-    object.setColor = function(_, color)
-        object.shapeDrawable:setColor(color)
-    end
-    
-    object.getColor = function()
-        return object.shapeDrawable:getColor()
-    end
-    
-    object.openForEditing = function()
-        object.shapeDrawable:setUseDisplayList(false)   -- Shape needs to be re-rendered every frame while it is changed
-    end
-
-    object.closeForEditing = function() 
-        object.shapeDrawable:setUseDisplayList(true)    -- done modifying Shape, doesn't need to be re-rendered every frame
-    end
     
     object.setCenter = function(_, vec)
         object.xform:setPosition(vec)

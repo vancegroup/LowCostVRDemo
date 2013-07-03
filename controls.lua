@@ -30,7 +30,6 @@ hold_to_zoom_in_button = stickYUp
 hold_to_zoom_out_button = stickYDown
 hold_to_adjust_view_button = button0
 click_to_select_button = stickclick
-click_to_drag_select_button = stickclick
 click_to_duplicate_button = button2
 click_to_delete_button = button4
 library_scroll_left_button = stickXLeft

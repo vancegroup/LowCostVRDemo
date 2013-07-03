@@ -4,7 +4,11 @@ require "library"
 require "Box"
 require "Cone"
 require "Cylinder"
+require "Pyramid"
 require "Sphere"
+
+-- only for sim mode testing
+require "controls_sim_mode"
 
 objects = {}  -- list of all myObjects that have been created (numerically indexed)
 

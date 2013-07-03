@@ -1,7 +1,7 @@
-require "myObject"
+require "myShapeObject"
 
 --[[
-    class Cone: inherits from (and implements) myObject
+    class Cone: inherits from (and implements) myShapeObject
         Constructors: Cone(color)  -- create a new Cone of the specified (Vec4f) color using the interactive draw sequence
                       Cone(cone_to_copy)   -- create a new Cone that is an exact duplicate of the one passed
         
@@ -21,7 +21,7 @@ function Cone(arg)  -- both constructors in one function. Pass either a Vec4f co
     else
         rawcone = osg.Cone(Vecf(0,0,0), 0.05, 0.01)
     end
-    local cone = myObject(rawcone, Transform{ orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) })
+    local cone = myShapeObject(rawcone, Transform{ orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) })
     cone.osgcone = rawcone
     
     cone:setColor(copy and arg:getColor() or arg)  -- arg could be either a Cone or a color
@@ -107,7 +107,7 @@ function Cone_scale(cone, newScale)
 end
 
 function Cone_contains(cone, vec)
-    local vecInLocalCoords = cone.getWorldToLocalCoords():preMult(vec)
+    local vecInLocalCoords = cone:getWorldToLocalCoords():preMult(vec)
     local heightUpFromBase = vecInLocalCoords:y() - (cone.osgcone:getCenter():y()-0.25*cone.osgcone:getHeight())   -- center is at the center of mass of the cone, 25% of the way up from the base
     local percentHeight = heightUpFromBase / cone.osgcone:getHeight()
     if percentHeight > 1 or percentHeight < 0 then -- too high or too low to hit the cone
@@ -129,5 +129,5 @@ function Cone_removeObject(cone)
 end
 
 function Cone_getRadiusAtPercentHeight(cone, percent)
-        return (1.0-percent)*cone.osgcone:getRadius()
-    end
+    return (1.0-percent)*cone.osgcone:getRadius()
+end

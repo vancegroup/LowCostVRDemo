@@ -1,7 +1,7 @@
-require "myObject"
+require "myShapeObject"
 
 --[[
-    class Cylinder: inherits from (and implements) myObject
+    class Cylinder: inherits from (and implements) myShapeObject
         Constructors: Cylinder(color)  -- create a new Cylinder of the specified (Vec4f) color using the interactive draw sequence
                       Cylinder(cylinder_to_copy)   -- create a new Cylinder that is an exact duplicate of the one passed
         
@@ -21,7 +21,7 @@ function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4
         rawcylinder = osg.Cylinder(Vecf{0,0,0}, 0.1, 0.05)
     end
 
-    local cylinder = myObject(rawcylinder, Transform{ orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) })
+    local cylinder = myShapeObject(rawcylinder, Transform{ orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) })
     cylinder.osgcylinder = rawcylinder
     
     cylinder:setColor(copy and arg:getColor() or arg)  -- arg could be either a Cylinder or a color
@@ -105,7 +105,7 @@ function Cylinder_scale(cylinder, newScale)
 end
 
 function Cylinder_contains(cylinder, vec)
-    local vecInLocalCoords = cylinder.getWorldToLocalCoords():preMult(vec)
+    local vecInLocalCoords = cylinder:getWorldToLocalCoords():preMult(vec)
     if vecInLocalCoords:y() > cylinder.osgcylinder:getCenter():y()+0.5*cylinder.osgcylinder:getHeight()
         or vecInLocalCoords:y() < cylinder.osgcylinder:getCenter():y()-0.5*cylinder.osgcylinder:getHeight()
         then return false
