@@ -69,15 +69,15 @@ cone = myShapes(smimage5, "cone")
 
 shapeMenu = {sphere, cube, pyramid, cylinder, cone}
 
-red = myColor(cmimage1, osg.Vec4f(1.0, 0.0, 0.0, 0.0), "red")
-orange = myColor(cmimage2, osg.Vec4f(1.0, 0.5, 0.0, 0.0), "orange")
-yellow = myColor(cmimage3, osg.Vec4f(1.0, 1.0, 0.0, 0.0), "yellow")
-green = myColor(cmimage4, osg.Vec4f(0.0, 1.0, 0.0, 0.0), "green")
-blue = myColor(cmimage5, osg.Vec4f(0.0, 0.0, 1.0, 0.0), "blue")
-purple = myColor(cmimage6, osg.Vec4f(0.5, 0.0, 0.5, 0.0), "purple")
-pink = myColor(cmimage7, osg.Vec4f(1.0, 0.4, 0.7, 0.0), "pink")
-brown = myColor(cmimage8, osg.Vec4f(0.46, 0.27, 0.074, 0.0), "brown")
-gray = myColor(cmimage9, osg.Vec4f(0.5, 0.5, 0.5, 0.0), "gray")
+red = myColor(cmimage1, osg.Vec4f(1.0, 0.0, 0.0, 1.0), "red")
+orange = myColor(cmimage2, osg.Vec4f(1.0, 0.5, 0.0, 1.0), "orange")
+yellow = myColor(cmimage3, osg.Vec4f(1.0, 1.0, 0.0, 1.0), "yellow")
+green = myColor(cmimage4, osg.Vec4f(0.0, 1.0, 0.0, 1.0), "green")
+blue = myColor(cmimage5, osg.Vec4f(0.0, 0.0, 1.0, 1.0), "blue")
+purple = myColor(cmimage6, osg.Vec4f(0.5, 0.0, 0.5, 1.0), "purple")
+pink = myColor(cmimage7, osg.Vec4f(1.0, 0.4, 0.7, 1.0), "pink")
+brown = myColor(cmimage8, osg.Vec4f(0.46, 0.27, 0.074, 1.0), "brown")
+gray = myColor(cmimage9, osg.Vec4f(0.5, 0.5, 0.5, 1.0), "gray")
 
 colorMenu = {red, orange, yellow, green, blue, purple, pink, brown, gray}
 
