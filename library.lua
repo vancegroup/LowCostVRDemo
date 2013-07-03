@@ -85,77 +85,57 @@ menu = {shapeMenu, colorMenu}
 
 -- set up position to draw menus
 cmxform = Transform{
-	position={0,0.43,-10},
-	orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
+	position={0,0.43,0},
+	--orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
 }
 	
 smxform = Transform{
-	position={0,1.07,-10},
-	orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
+	position={0,1.07,0},
+	--orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
 }
 
 -- makes the menus always display in screen coordinates
 xform1 = osg.AutoTransform()
 xform1:setAutoRotateMode(1)
 xform1:setAutoScaleToScreen(0)
-xform1:setPosition(Vec(0.5, 1.0, 0.0))
+xform1:setPosition(Vec(-0.5, 1.75, -2.0))
 
 cmxform:addChild(cmimage1)
-transpCM = myTransparentGroup({cmxform})
+transpCM = myTransparentGroup({cmxform, alpha = 0.5})
 xform1:addChild(transpCM)
 
 smxform:addChild(smimage1)
-transpSM = myTransparentGroup({smxform})
+transpSM = myTransparentGroup({smxform, alpha = 1.0})
 xform1:addChild(transpSM)
 
 -- initialize to 1 and 1 automatically
 colorIndex = 1
 shapeIndex = 1
-libraryPressed = 1
 
---[[
-Actions.addFrameAction(function()
-	while true do
-		if libraryPressed == 1 then 
-			if open_library_button.justPressed then
-				RelativeTo.Room:addChild(xform1)
-				libraryPressed = 0
-				activeMenu = 1
-				changeTransparency(transpCM, 0.5)
-			end
-		else
-]]--
 function libraryCalled()
 	RelativeTo.Room:addChild(xform1)
 	activeMenu = 1
-	changeTransparency(transpCM, 0.5)
+	libraryJustCalled = true
     while true do
-        if open_library_button.justPressed then
+        if open_library_button.justPressed and not libraryJustCalled then
             RelativeTo.Room:removeChild(xform1)
-            print("colorIndex", colorIndex)
-            print("shapeIndex", shapeIndex)
-            libraryPressed = 1
         elseif library_switch_up_button.justPressed or library_switch_down_button.justPressed then
             if activeMenu == 2 then
                 activeMenu = 1
                 changeTransparency(transpCM, 0.5)
                 changeTransparency(transpSM, 1.0)
-                print("switching to shapes")
             else
                 activeMenu = 2
                 changeTransparency(transpCM, 1.0)
                 changeTransparency(transpSM, 0.5)
-                print("switching to color")
             end
         elseif library_scroll_left_button.justPressed then
             if activeMenu == 1 then 
-                print("moving left one shape")
                 if shapeIndex > 1 and shapeIndex <= 5 then
                     shapeIndex = shapeIndex - 1
                     smxform:replaceChild(shapeMenu[shapeIndex + 1].image, shapeMenu[shapeIndex].image)
                 end
             else 			
-                print("moving left one color")
                 if colorIndex > 1 and colorIndex <= 9 then
                     colorIndex = colorIndex - 1
                     cmxform:replaceChild(colorMenu[colorIndex+1].image, colorMenu[colorIndex].image)
@@ -163,21 +143,21 @@ function libraryCalled()
             end
         elseif library_scroll_right_button.justPressed then
             if activeMenu == 1 then
-                print ("changing shape to the right")
                 if shapeIndex >= 1 and shapeIndex < 5 then
                     shapeIndex = shapeIndex + 1
                     smxform:replaceChild(shapeMenu[shapeIndex - 1].image, shapeMenu[shapeIndex].image)
                 end
             else
-                print("changing color to the right")
                 if colorIndex >= 1 and colorIndex < 9 then
                     colorIndex = colorIndex + 1
                     cmxform:replaceChild(colorMenu[colorIndex-1].image, colorMenu[colorIndex].image)
                 end
             end
         elseif library_confirm_button.justPressed then
+			RelativeTo.Room:removeChild(xform1)
             return shapeMenu[shapeIndex].name, colorMenu[colorIndex].vec
         end
+		libraryJustCalled = false
         Actions.waitForRedraw()
 	end
 end
