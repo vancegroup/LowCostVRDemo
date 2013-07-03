@@ -33,32 +33,32 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
         pyramid.vertexArray = arg.vertexArray
     else
         pyramid.vertexArray = osg.Vec3Array()
-        pyramid.vertexArray:push_back( Vecf(0.01, 0, 0.01) )
-        pyramid.vertexArray:push_back( Vecf(-0.01, 0, 0.01) )
-        pyramid.vertexArray:push_back( Vecf(-0.01, 0, -0.01) )
-        pyramid.vertexArray:push_back( Vecf(0.01, 0, -0.01) )
-        pyramid.vertexArray:push_back( Vecf(0, 0, 0) )   -- peak
+        pyramid.vertexArray[1] = Vecf(0.01, 0, 0.01)
+        pyramid.vertexArray[2] = Vecf(-0.01, 0, 0.01)
+        pyramid.vertexArray[3] = Vecf(-0.01, 0, -0.01)
+        pyramid.vertexArray[4] = Vecf(0.01, 0, -0.01)
+        pyramid.vertexArray[5] = Vecf(0, 0, 0)   -- peak
     end
     
     local base = osg.DrawElementsUInt(GL_QUADS, 0)
-    base:push_back(3)
-    base:push_back(2)
-    base:push_back(1)
-    base:push_back(0)
+    table.insert( base.Item, 3 )   -- does this still refer to the vertices above with a 0-based index? How smart is the Lua binding?
+    table.insert( base.Item, 2 )
+    table.insert( base.Item, 1 )
+    table.insert( base.Item, 0 )
     
     local faces = osg.DrawElementsUInt(GL_TRIANGLES, 0)
-    faces:push_back(0)
-    faces:push_back(1)
-    faces:push_back(4)
-    faces:push_back(1)
-    faces:push_back(2)
-    faces:push_back(4)
-    faces:push_back(2)
-    faces:push_back(3)
-    faces:push_back(4)
-    faces:push_back(3)
-    faces:push_back(0)
-    faces:push_back(4)
+    table.insert( faces.Item, 0)
+    table.insert( faces.Item, 1)
+    table.insert( faces.Item, 4)
+    table.insert( faces.Item, 1)
+    table.insert( faces.Item, 2)
+    table.insert( faces.Item, 4)
+    table.insert( faces.Item, 2)
+    table.insert( faces.Item, 3)
+    table.insert( faces.Item, 4)
+    table.insert( faces.Item, 3)
+    table.insert( faces.Item, 0)
+    table.insert( faces.Item, 4)
     
     pyramid.geometry:setVertexArray(pyramid.vertexArray)
     pyramid.geometry:addPrimitiveSet(base)
@@ -78,25 +78,40 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
     
     pyramid.setBaseHalfLengths = function(_, xHalfLength, zHalfLength)
         local newVertexArray = osg.Vec3Array()
-        newVertexArray:push_back( Vecf(xHalfLength, 0, zHalfLength) )
-        newVertexArray:push_back( Vecf(-xHalfLength, 0, zHalfLength) )
-        newVertexArray:push_back( Vecf(-xHalfLength, 0, -zHalfLength) )
-        newVertexArray:push_back( Vecf(xHalfLength, 0, -zHalfLength) )
-        newVertexArray:push_back( Vecf(0, pyramid:getHeight(), 0) )   -- leave height unchanged
+        table.insert( newVertexArray.Item, Vecf(xHalfLength, 0, zHalfLength) )
+        table.insert( newVertexArray.Item, Vecf(-xHalfLength, 0, zHalfLength) )
+        table.insert( newVertexArray.Item, Vecf(-xHalfLength, 0, -zHalfLength) )
+        table.insert( newVertexArray.Item, Vecf(xHalfLength, 0, -zHalfLength) )
+        table.insert( newVertexArray.Item, Vecf(0, pyramid:getHeight(), 0) )   -- leave height unchanged
         pyramid.vertexArray = newVertexArray
     end
     
     pyramid.getBaseHalfLengths = function()
-        return pyramid.vertexArray:at(0):x(), pyramid.vertexArray:at(0):z()
+        return pyramid.vertexArray.Item[1]:x(), pyramid.vertexArray.Item[1]:z()
     end
     
     pyramid.setHeight = function(_, height)
-        pyramid.vertexArray:pop_back()   -- remove the old peak vertex
-        pyramid.vertexArray:push_back( Vecf(0, height, 0) )   -- the new peak vertex
+        pyramid.vertexArray.Item[5] = Vecf(0, height, 0)   -- the new peak vertex
     end
     
     pyramid.getHeight = function()
-        return pyramid.vertexArray:at(4):y()
+        return pyramid.vertexArray.Item[5]:y()
+    end
+    
+    pyramid.setColor = function(_, color)
+        pyramid.colors.Item[1] = color
+    end
+    
+    pyramid.getColor = function()
+        return pyramid.colors.Item[1]
+    end
+    
+    pyramid.openForEditing = function()
+        pyramid.geometry:setUseDisplayList(false)
+    end
+    
+    pyramid.closeForEditing = function()
+        pyramid.geometry:setUseDisplayList(true)
     end
     
     if copy then

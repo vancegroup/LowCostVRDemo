@@ -18,5 +18,5 @@ click_to_delete_button = notAvailable
 library_scroll_left_button = notAvailable
 library_scroll_right_button = button2
 library_switch_up_button = notAvailable
-library_switch_down_button = button1
+library_switch_down_button = notAvailable
 library_confirm_button = button0

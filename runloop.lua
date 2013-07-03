@@ -42,7 +42,7 @@ function runloop()
             elseif string.find(shape, "cylinder") then
                 table.insert(objects, Cylinder(color))
             elseif string.find(shape, "pyramid") then
-                print("Sorry, pyramid not supported yet.")
+                table.insert(objects, Pyramid(color))
             elseif string.find(shape, "sphere") then
                 table.insert(objects, Sphere(color))
             else
