@@ -25,7 +25,7 @@ function Cone(arg)  -- both constructors in one function. Pass either a Vec4f co
     cone.osgcone = rawcone
     
     cone:setColor(copy and arg:getColor() or arg)  -- arg could be either a Cone or a color
-    
+	
     cone.getCenterInWorldCoords = Cone_getCenterInWorldCoords
     cone.initializeScaling = Cone_initializeScaling
     cone.scale = Cone_scale
