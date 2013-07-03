@@ -10,6 +10,8 @@ require "myGrabbable"
         abstract void :initializeScaling()  -- get ready for subsequent calls to scale()
         abstract void :scale(float)
         abstract (Lua)bool :contains(Vec3f)   -- whether the object contains the point passed as argument
+        void :setColor(Vec4f)
+        Vec4f :getColor()
         void :openForEditing()
         void :closeForEditing()
         abstract void :removeObject()  -- removes the object from the environment
@@ -41,6 +43,14 @@ function myObject(osgshape, permxform)
     
     object.selected = false
     object.cursorOver = false
+    
+    object.setColor = function(_, color)
+        object.shapeDrawable:setColor(color)
+    end
+    
+    object.getColor = function()
+        return object.shapeDrawable:getColor()
+    end
     
     object.openForEditing = function()
         object.shapeDrawable:setUseDisplayList(false)   -- Shape needs to be re-rendered every frame while it is changed

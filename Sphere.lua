@@ -2,19 +2,21 @@ require "myObject"
 
 --[[
     class Sphere: inherits from (and implements) myObject
-    Constructors: Sphere()  -- create a new Sphere using the interactive draw sequence
-                  Sphere(sphere_to_copy)   -- create a new Sphere that is an exact duplicate of the one passed
-    
-    implements abstract methods of myObject
-    
-    Additional private members:
-    .osgsphere  -- the underlying osg::Sphere
+        Constructors: Sphere(color)  -- create a new Sphere of the specified (Vec4f) color using the interactive draw sequence
+                      Sphere(sphere_to_copy)   -- create a new Sphere that is an exact duplicate of the one passed
+        
+        implements abstract methods of myObject
+        
+        Additional private members:
+        .osgsphere  -- the underlying osg::Sphere
 ]]--
 
-function Sphere(sphere_to_copy)
+function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f color for interactive draw, or an existing Sphere to copy
+    copy = (type(arg) == "table")   -- copy will be true if an object to copy was passed, but false if a color was passed
+    
     local rawsphere; 
-    if sphere_to_copy then
-        rawsphere = osg.Sphere(sphere_to_copy.osgsphere:getCenter(), sphere_to_copy.osgsphere:getRadius())
+    if copy then
+        rawsphere = osg.Sphere(arg.osgsphere:getCenter(), arg.osgsphere:getRadius())
     else
         rawsphere = osg.Sphere(Vecf(0,0,0), 0.01)
     end
@@ -22,14 +24,16 @@ function Sphere(sphere_to_copy)
     local sphere = myObject(rawsphere)
     sphere.osgsphere = rawsphere
     
+    sphere:setColor(copy and arg:getColor() or arg)  -- arg could be either a Sphere or a color
+    
     sphere.getCenterInWorldCoords = Sphere_getCenterInWorldCoords
     sphere.initializeScaling = Sphere_initializeScaling
     sphere.scale = Sphere_scale
     sphere.contains = Sphere_contains
     sphere.removeObject = Sphere_removeObject
     
-    if sphere_to_copy then
-        sphere:setCenter(sphere_to_copy:getCenterDisplacement())
+    if copy then
+        sphere:setCenter(arg:getCenterDisplacement())
         return sphere
         -- copy complete
     end

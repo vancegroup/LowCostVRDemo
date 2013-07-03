@@ -2,19 +2,21 @@ require "myObject"
 
 --[[
     class Cylinder: inherits from (and implements) myObject
-        Constructors: Cylinder()  -- create a new Cylinder using the interactive draw sequence
+        Constructors: Cylinder(color)  -- create a new Cylinder of the specified (Vec4f) color using the interactive draw sequence
                       Cylinder(cylinder_to_copy)   -- create a new Cylinder that is an exact duplicate of the one passed
         
-        implements all methods of myObject
+        implements abstract methods of myObject
         
         Additional private members:
         .osgcylinder  -- the underlying osg::Cylinder
 ]]--
 
-function Cylinder(cylinder_to_copy)
+function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4f color for interactive draw, or an existing Cylinder to copy
+    copy = (type(arg) == "table")   -- copy will be true if an object to copy was passed, but false if a color was passed
+    
     local rawcylinder;
-    if cylinder_to_copy then
-        rawcylinder = osg.Cylinder(cylinder_to_copy.osgcylinder:getCenter(), cylinder_to_copy.osgcylinder:getRadius(), cylinder_to_copy.osgcylinder:getHeight())
+    if copy then
+        rawcylinder = osg.Cylinder(arg.osgcylinder:getCenter(), arg.osgcylinder:getRadius(), arg.osgcylinder:getHeight())
     else
         rawcylinder = osg.Cylinder(Vecf{0,0,0}, 0.1, 0.05)
     end
@@ -22,14 +24,16 @@ function Cylinder(cylinder_to_copy)
     local cylinder = myObject(rawcylinder, Transform{ orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) })
     cylinder.osgcylinder = rawcylinder
     
+    cylinder:setColor(copy and arg:getColor() or arg)  -- arg could be either a Cylinder or a color
+    
     cylinder.getCenterInWorldCoords = Cylinder_getCenterInWorldCoords
     cylinder.initializeScaling = Cylinder_initializeScaling
     cylinder.scale = Cylinder_scale
     cylinder.contains = Cylinder_contains
     cylinder.removeObject = Cylinder_removeObject
     
-    if cylinder_to_copy then
-        cylinder:setCenter(cylinder_to_copy:getCenterDisplacement())
+    if copy then
+        cylinder:setCenter(arg:getCenterDisplacement())
         return cylinder
         -- copy complete
     end

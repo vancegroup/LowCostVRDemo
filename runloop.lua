@@ -29,17 +29,18 @@ function runloop()
             end
             
             shape, color = libraryCalled()
+            print("Got shape: ", shape, " and color: "); printVec(color)
             
             if string.find(shape, "cube") then
-                table.insert(objects, Box())
+                table.insert(objects, Box(color))
             elseif string.find(shape, "cone") then
-                table.insert(objects, Cone())
+                table.insert(objects, Cone(color))
             elseif string.find(shape, "cylinder") then
-                table.insert(objects, Cylinder())
+                table.insert(objects, Cylinder(color))
             elseif string.find(shape, "pyramid") then
                 print("Sorry, pyramid not supported yet.")
             elseif string.find(shape, "sphere") then
-                table.insert(objects, Sphere())
+                table.insert(objects, Sphere(color))
             else
                 print("Unrecognized return value from libraryCalled(): ", shape)
             end

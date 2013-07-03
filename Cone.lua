@@ -2,25 +2,29 @@ require "myObject"
 
 --[[
     class Cone: inherits from (and implements) myObject
-    Constructors: Cone()  -- create a new Cone using the interactive draw sequence
-                  Cone(cone_to_copy)   -- create a new Cone that is an exact duplicate of the one passed
-    
-    implements abstract methods of myObject
-    
-    Additional private members:
-    .osgcone  -- the underlying osg::Cone
-    float :getRadiusAtPercentHeight(float)  -- pass the percent up the height, where 1 is the tip and 0 is the base, receive the radius at that height
+        Constructors: Cone(color)  -- create a new Cone of the specified (Vec4f) color using the interactive draw sequence
+                      Cone(cone_to_copy)   -- create a new Cone that is an exact duplicate of the one passed
+        
+        implements abstract methods of myObject
+        
+        Additional private members:
+        .osgcone  -- the underlying osg::Cone
+        float :getRadiusAtPercentHeight(float)  -- pass the percent up the height, where 1 is the tip and 0 is the base, receive the radius at that height
 ]]--
 
-function Cone(cone_to_copy)
+function Cone(arg)  -- both constructors in one function. Pass either a Vec4f color for interactive draw, or an existing Cone to copy
+    copy = (type(arg) == "table")   -- copy will be true if an object to copy was passed, but false if a color was passed
+    
     local rawcone; 
-    if cone_to_copy then
-        rawcone = osg.Cone(cone_to_copy.osgcone:getCenter(), cone_to_copy.osgcone:getRadius(), cone_to_copy.osgcone:getHeight())
+    if copy then
+        rawcone = osg.Cone(arg.osgcone:getCenter(), arg.osgcone:getRadius(), arg.osgcone:getHeight())
     else
         rawcone = osg.Cone(Vecf(0,0,0), 0.05, 0.01)
     end
     local cone = myObject(rawcone, Transform{ orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) })
     cone.osgcone = rawcone
+    
+    cone:setColor(copy and arg:getColor() or arg)  -- arg could be either a Cone or a color
     
     cone.getCenterInWorldCoords = Cone_getCenterInWorldCoords
     cone.initializeScaling = Cone_initializeScaling
@@ -30,8 +34,8 @@ function Cone(cone_to_copy)
     
     cone.getRadiusAtPercentHeight = Cone_getRadiusAtPercentHeight
     
-    if cone_to_copy then
-        cone:setCenter(cone_to_copy:getCenterDisplacement())
+    if copy then
+        cone:setCenter(arg:getCenterDisplacement())
         return cone
         -- copy complete
     end

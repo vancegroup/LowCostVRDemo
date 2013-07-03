@@ -2,7 +2,7 @@ require "myObject"
 
 --[[
     class Box: inherits from (and implements) myObject
-        Constructors: Box()  -- create a new Box using the interactive draw sequence
+        Constructors: Box(color)  -- create a new Box of the specified (Vec4f) color using the interactive draw sequence
                       Box(box_to_copy)   -- create a new Box that is an exact duplicate of the one passed
         
         implements abstract methods of myObject
@@ -11,12 +11,14 @@ require "myObject"
         .osgbox  -- the underlying osg::Box
 ]]--
 
-function Box(box_to_copy)
+function Box(arg)  -- both constructors in one function. Pass either a Vec4f color for interactive draw, or an existing Box to copy
+    copy = (type(arg) == "table")   -- copy will be true if an object to copy was passed, but false if a color was passed
+    
     local rawbox;
-    if box_to_copy then
+    if copy then
         rawbox = osg.Box()
-        rawbox:setCenter(box_to_copy.osgbox:getCenter())  -- due to JuggLua bug, the overloaded constructor can't be called
-        rawbox:setHalfLengths(box_to_copy.osgbox:getHalfLengths())
+        rawbox:setCenter(arg.osgbox:getCenter())  -- due to JuggLua bug, the overloaded constructor can't be called
+        rawbox:setHalfLengths(arg.osgbox:getHalfLengths())
     else
         rawbox = osg.Box(Vecf(0,0,0), 0.01)
     end
@@ -24,14 +26,16 @@ function Box(box_to_copy)
     local box = myObject(rawbox)
     box.osgbox = rawbox
     
+    box:setColor(copy and arg:getColor() or arg)
+    
     box.getCenterInWorldCoords = Box_getCenterInWorldCoords
     box.initializeScaling = Box_initializeScaling
     box.scale = Box_scale
     box.contains = Box_contains
     box.removeObject = Box_removeObject
     
-    if box_to_copy then
-        box:setCenter(box_to_copy:getCenterDisplacement())
+    if copy then
+        box:setCenter(arg:getCenterDisplacement())
         return box
         -- copy complete
     end
