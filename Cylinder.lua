@@ -34,6 +34,7 @@ function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4
     
     if copy then
         cylinder:setCenter(arg:getCenterDisplacement())
+        RelativeTo.World:addChild(cylinder.attach_here)
         return cylinder
         -- copy complete
     end

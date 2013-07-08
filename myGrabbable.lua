@@ -13,6 +13,7 @@ require "myTransparentGroup"
         void :makeTransparent()
         void :makeSemiTransparent()
         void :makeUnTransparent()
+        (Lua)bool .grabbed   -- whether the object is currently grabbed
         
         -- private members
         .transgroup  -- a myTransparentGroup
@@ -22,14 +23,14 @@ require "myTransparentGroup"
 ]]--
 
 function myGrabbable(someNode)    
-	local grabbable = {}
+    local grabbable = {}
     grabbable.transgroup = myTransparentGroup{ alpha = 1.0, someNode }
-	grabbable.xform_track = osg.MatrixTransform()
-	grabbable.xform_track:addChild(grabbable.transgroup)
-	grabbable.xform_save = osg.MatrixTransform(osg.Matrixd.identity())   -- identity() is a static method for the osg.Matrixd class.
-	grabbable.xform_save:addChild(grabbable.xform_track)
+    grabbable.xform_track = osg.MatrixTransform()
+    grabbable.xform_track:addChild(grabbable.transgroup)
+    grabbable.xform_save = osg.MatrixTransform(osg.Matrixd.identity())   -- identity() is a static method for the osg.Matrixd class.
+    grabbable.xform_save:addChild(grabbable.xform_track)
     grabbable.attach_here = grabbable.xform_save   -- the outermost node. See above outline for a good description of this field.
-	
+    
     grabbable.getLocalToWorldCoords = function()
         return grabbable.transgroup:getWorldMatrices(RelativeTo.World).Item[1]
     end
@@ -49,23 +50,31 @@ function myGrabbable(someNode)
         changeTransparency(grabbable.transgroup, 1.0)
     end
     
-	return grabbable
+    grabbable.grabbed = false
+    
+    return grabbable
 end
 
-function grab(grabbable)
-	grabbable.xform_save:preMult(osg.Matrixd.inverse(wand.matrix))   -- prevent new item from "jumping" by compensating for current position of cursor
-	grabbable:makeTransparent()
-	grabbable.frameaction = Actions.addFrameAction(function() 
-		while true do
-			grabbable.xform_track:setMatrix(wand.matrix)
-			Actions.waitForRedraw()
-		end
-	end)
+function grab(grabbable)   -- this function (and ungrab) are safe to call regardless of whether the object is currently grabbed or not.
+    if not grabbable.grabbed then
+        grabbable.grabbed = true
+        grabbable.xform_save:preMult(osg.Matrixd.inverse(wand.matrix))   -- prevent new item from "jumping" by compensating for current position of cursor
+        grabbable:makeTransparent()
+        grabbable.frameaction = Actions.addFrameAction(function() 
+            while true do
+                grabbable.xform_track:setMatrix(wand.matrix)
+                Actions.waitForRedraw()
+            end
+        end)
+    end
 end
 
 function ungrab(grabbable)
-	Actions.removeFrameAction(grabbable.frameaction)
-	grabbable:makeUnTransparent()
-	grabbable.xform_save:preMult(wand.matrix)   -- save current position by updating the xform_save transform
-	grabbable.xform_track:setMatrix(osg.Matrixd.identity())   -- what was formerly xform_save * xform_track is now stored in xform_save; xform_track is now identity
+    if grabbable.grabbed then
+        grabbable.grabbed = false
+        Actions.removeFrameAction(grabbable.frameaction)
+        grabbable:makeUnTransparent()
+        grabbable.xform_save:preMult(wand.matrix)   -- save current position by updating the xform_save transform
+        grabbable.xform_track:setMatrix(osg.Matrixd.identity())   -- what was formerly xform_save * xform_track is now stored in xform_save; xform_track is now identity
+    end
 end

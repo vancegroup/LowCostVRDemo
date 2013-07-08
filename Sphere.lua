@@ -34,6 +34,7 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
     
     if copy then
         sphere:setCenter(arg:getCenterDisplacement())
+        RelativeTo.World:addChild(sphere.attach_here)
         return sphere
         -- copy complete
     end

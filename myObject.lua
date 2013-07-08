@@ -6,6 +6,8 @@ require "myGrabbable"
         
         (Lua)bool .selected   -- whether object is selected or not (a Lua bool not an osg bool)
         (Lua)bool .cursorOver   -- whether the cursor is over the object or not
+        void :select()  -- select the object. Safe to call regardless of whether the object is currently selected or not.
+        void :deselect()  -- deselect the object. Safe to call regardless of whether the object is currently selected or not.
         abstract Vec3f :getCenterInWorldCoords()  -- abstract methods are not implemented here and must be implemented by subclasses
         abstract void :initializeScaling()  -- get ready for subsequent calls to scale()
         abstract void :scale(float)
@@ -33,6 +35,16 @@ function myObject(grabbable)
     
     object.selected = false
     object.cursorOver = false
+    
+    object.select = function()
+        object.selected = true
+        grab(object)
+    end
+    
+    object.deselect = function()
+        object.selected = false
+        ungrab(object)
+    end
     
     object.setCenter = function(_, vec)
         object.xform:setPosition(vec)

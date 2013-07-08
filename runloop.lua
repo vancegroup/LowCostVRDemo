@@ -16,6 +16,7 @@ function runloop()
     local cursor = Cursor()  -- initialize the cursor
     
     while true do
+        
         for _, o in ipairs(objects) do
             if o:contains(cursor:getPosition()) then
                 o.cursorOver = true
@@ -29,11 +30,10 @@ function runloop()
         if open_library_button.justPressed then
             
             for _, o in ipairs(objects) do
-                o.selected = false  -- deselect all other objects when creating a new one. Assuming this is desired behavior.
+                o:deselect()  -- deselect all other objects when creating a new one. Assuming this is desired behavior.
             end
             
             shape, color = libraryCalled()
-            print("Got shape: ", shape, " and color: "); printVec(color)
             
             if string.find(shape, "cube") then
                 table.insert(objects, Box(color))
@@ -56,21 +56,16 @@ function runloop()
                 if o.cursorOver then
                     cursorOverAnything = true
                     if o.selected then 
-                        o.selected = false
-                        ungrab(o)
+                        o:deselect()
                     else
-                        o.selected = true
-                        grab(o)
+                        o:select()
                     end
                 end
             end
             
             if not cursorOverAnything then
                 for _, o in ipairs(objects) do
-                    if o.selected then
-                        o.selected = false
-                        ungrab(o)
-                    end
+                    o:deselect()
                 end
             end
         
@@ -128,16 +123,16 @@ function runloop()
                     newObject = Cone(object)
                 elseif object.osgcylinder then
                     newObject = Cylinder(object)
+                elseif object.geometry then
+                    newObject = Pyramid(object)   -- assume all PrimitiveSet objects are pyramids, for now
                 elseif object.osgsphere then
                     newObject = Sphere(object)
                 else 
                     print("Error: unsupported object for duplicate")
                 end
                 table.insert(objects, newObject)
-                object.selected = false  -- deselect the old (parent) object
-                ungrab(object)
-                newObject.selected = true  -- select the new (copy) object
-                grab(newObject)
+                object:deselect()  -- deselect the old (parent) object
+                newObject:select()  -- select the new (copy) object
             end
         
         elseif click_to_delete_button.justPressed then

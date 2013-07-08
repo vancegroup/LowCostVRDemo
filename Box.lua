@@ -36,6 +36,7 @@ function Box(arg)  -- both constructors in one function. Pass either a Vec4f col
     
     if copy then
         box:setCenter(arg:getCenterDisplacement())
+        RelativeTo.World:addChild(box.attach_here)
         return box
         -- copy complete
     end

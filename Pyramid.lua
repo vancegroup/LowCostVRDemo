@@ -1,4 +1,4 @@
-require "myObject"
+require "myGeometryObject"
 require "gldef"
 
 --[[
@@ -15,59 +15,50 @@ require "gldef"
         float :getHeight()
         float, float :getHalfLengthsAtPercentHeight(float)   -- pass the percent up the height, where 1 is the tip and 0 is the base, receive the halfLengths at that height
         
-        .geometry  -- the underlying osg::Geometry
         .vertexArray  -- the osg::Vec3Array used as the vertex array for the geometry
-        .colors  -- an osg::Vec4Array containing the colors of the object
 ]]--
 
 function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f color for interactive draw, or an existing Pyramid to copy
     copy = (type(arg) == "table")   -- copy will be true if an object to copy was passed, but false if a color was passed
     
-    local geode = osg.Geode()
-    local grabbable = myGrabbable(geode)
-    local pyramid = myObject(grabbable)
-    pyramid.geometry = osg.Geometry()
-    geode:addDrawable(pyramid.geometry)
+    pyramid = myGeometryObject()
     
     if copy then
         pyramid.vertexArray = arg.vertexArray
     else
         pyramid.vertexArray = osg.Vec3Array()
-        pyramid.vertexArray[1] = Vecf(0.01, 0, 0.01)
-        pyramid.vertexArray[2] = Vecf(-0.01, 0, 0.01)
-        pyramid.vertexArray[3] = Vecf(-0.01, 0, -0.01)
-        pyramid.vertexArray[4] = Vecf(0.01, 0, -0.01)
-        pyramid.vertexArray[5] = Vecf(0, 0, 0)   -- peak
+        pyramid.vertexArray.Item[1] = Vecf(0.05, 0, 0.05)
+        pyramid.vertexArray.Item[2] = Vecf(-0.05, 0, 0.05)
+        pyramid.vertexArray.Item[3] = Vecf(-0.05, 0, -0.05)
+        pyramid.vertexArray.Item[4] = Vecf(0.05, 0, -0.05)
+        pyramid.vertexArray.Item[5] = Vecf(0, 0.05, 0)   -- peak
     end
     
-    local base = osg.DrawElementsUInt(GL_QUADS, 0)
-    table.insert( base.Item, 3 )   -- does this still refer to the vertices above with a 0-based index? How smart is the Lua binding?
-    table.insert( base.Item, 2 )
-    table.insert( base.Item, 1 )
-    table.insert( base.Item, 0 )
+    local base = osg.DrawElementsUShort(gldef.GL_QUADS, 0)  -- 0 is the index in pyramid.vertexArray to start from
+    base.Item:insert( osgLua.GLushort(3) )   -- does this still refer to the vertices above with a 0-based index? How smart is the Lua binding?
+    base.Item:insert( osgLua.GLushort(2) )
+    base.Item:insert( osgLua.GLushort(1) )
+    base.Item:insert( osgLua.GLushort(0) )
     
-    local faces = osg.DrawElementsUInt(GL_TRIANGLES, 0)
-    table.insert( faces.Item, 0)
-    table.insert( faces.Item, 1)
-    table.insert( faces.Item, 4)
-    table.insert( faces.Item, 1)
-    table.insert( faces.Item, 2)
-    table.insert( faces.Item, 4)
-    table.insert( faces.Item, 2)
-    table.insert( faces.Item, 3)
-    table.insert( faces.Item, 4)
-    table.insert( faces.Item, 3)
-    table.insert( faces.Item, 0)
-    table.insert( faces.Item, 4)
+    local faces = osg.DrawElementsUShort(gldef.GL_TRIANGLES, 0)
+    faces.Item:insert( osgLua.GLushort(0) )
+    faces.Item:insert( osgLua.GLushort(1) )
+    faces.Item:insert( osgLua.GLushort(4) )
+    faces.Item:insert( osgLua.GLushort(1) )
+    faces.Item:insert( osgLua.GLushort(2) )
+    faces.Item:insert( osgLua.GLushort(4) )
+    faces.Item:insert( osgLua.GLushort(2) )
+    faces.Item:insert( osgLua.GLushort(3) )
+    faces.Item:insert( osgLua.GLushort(4) )
+    faces.Item:insert( osgLua.GLushort(3) )
+    faces.Item:insert( osgLua.GLushort(0) )
+    faces.Item:insert( osgLua.GLushort(4) )
     
     pyramid.geometry:setVertexArray(pyramid.vertexArray)
     pyramid.geometry:addPrimitiveSet(base)
     pyramid.geometry:addPrimitiveSet(faces)
-    
-    pyramid.colors = osg.Vec4Array()
+
     pyramid:setColor(copy and arg:getColor() or arg)  -- arg could be either a Pyramid or a color
-    pyramid.geometry:setColorArray(pyramid.colors)
-    pyramid.geometry:setColorBinding(osg.Geometry.BIND_OVERALL)
     
     pyramid.getCenterInWorldCoords = Pyramid_getCenterInWorldCoords
     pyramid.initializeScaling = Pyramid_initializeScaling
@@ -77,13 +68,12 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
     pyramid.getHalfLengthsAtPercentHeight = Pyramid_getHalfLengthsAtPercentHeight
     
     pyramid.setBaseHalfLengths = function(_, xHalfLength, zHalfLength)
-        local newVertexArray = osg.Vec3Array()
-        table.insert( newVertexArray.Item, Vecf(xHalfLength, 0, zHalfLength) )
-        table.insert( newVertexArray.Item, Vecf(-xHalfLength, 0, zHalfLength) )
-        table.insert( newVertexArray.Item, Vecf(-xHalfLength, 0, -zHalfLength) )
-        table.insert( newVertexArray.Item, Vecf(xHalfLength, 0, -zHalfLength) )
-        table.insert( newVertexArray.Item, Vecf(0, pyramid:getHeight(), 0) )   -- leave height unchanged
-        pyramid.vertexArray = newVertexArray
+        local oldHeight = pyramid:getHeight()
+        pyramid.vertexArray.Item[1] = Vecf(xHalfLength, 0, zHalfLength)
+        pyramid.vertexArray.Item[2] = Vecf(-xHalfLength, 0, zHalfLength)
+        pyramid.vertexArray.Item[3] = Vecf(-xHalfLength, 0, -zHalfLength)
+        pyramid.vertexArray.Item[4] = Vecf(xHalfLength, 0, -zHalfLength)
+        pyramid.vertexArray.Item[5] = Vecf(0, oldHeight, 0)  -- leave height unchanged
     end
     
     pyramid.getBaseHalfLengths = function()
@@ -98,24 +88,9 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
         return pyramid.vertexArray.Item[5]:y()
     end
     
-    pyramid.setColor = function(_, color)
-        pyramid.colors.Item[1] = color
-    end
-    
-    pyramid.getColor = function()
-        return pyramid.colors.Item[1]
-    end
-    
-    pyramid.openForEditing = function()
-        pyramid.geometry:setUseDisplayList(false)
-    end
-    
-    pyramid.closeForEditing = function()
-        pyramid.geometry:setUseDisplayList(true)
-    end
-    
     if copy then
         pyramid:setCenter(arg:getCenterDisplacement())
+        RelativeTo.World:addChild(pyramid.attach_here)
         return pyramid
         -- copy complete
     end
@@ -129,6 +104,7 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
     local centerPos = startLoc
     pyramid:setCenter(Vec(startLoc))
     RelativeTo.World:addChild(pyramid.attach_here)
+    
     pyramid:openForEditing()
     
     repeat
@@ -137,9 +113,9 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
         pyramid:setCenter(Vec(centerPos))
         local deltax, deltay, deltaz = getDeltas(startLoc, endLoc)
         deltax, deltay, deltaz = 0.5*math.abs(deltax), 0.5*math.abs(deltay), 0.5*math.abs(deltaz)
-        if deltax < 0.01 then deltax = 0.01 end  -- disallow halfLengths less than 0.01
-        if deltay < 0.01 then deltay = 0.01 end
-        if deltaz < 0.01 then deltaz = 0.01 end
+        if deltax < 0.05 then deltax = 0.05 end  -- disallow halfLengths less than 0.05
+        if deltay < 0.05 then deltay = 0.05 end
+        if deltaz < 0.05 then deltaz = 0.05 end
         pyramid:setBaseHalfLengths(deltax, deltaz)
         Actions.waitForRedraw()
     until not hold_to_draw_button.pressed

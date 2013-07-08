@@ -36,6 +36,7 @@ function Cone(arg)  -- both constructors in one function. Pass either a Vec4f co
     
     if copy then
         cone:setCenter(arg:getCenterDisplacement())
+        RelativeTo.World:addChild(cone.attach_here)
         return cone
         -- copy complete
     end
