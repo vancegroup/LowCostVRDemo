@@ -1,7 +1,7 @@
-require "myShapeObject"
+require "ShapeObjects.ShapeObject"
 
 --[[
-    class Box: inherits from (and implements) myShapeObject
+    class Box: inherits from (and implements) ShapeObject
         Constructors: Box(color)  -- create a new Box of the specified (Vec4f) color using the interactive draw sequence
                       Box(box_to_copy)   -- create a new Box that is an exact duplicate of the one passed
         
@@ -23,7 +23,7 @@ function Box(arg)  -- both constructors in one function. Pass either a Vec4f col
         rawbox = osg.Box(Vecf(0,0,0), 0.01)
     end
     
-    local box = myShapeObject(rawbox)
+    local box = ShapeObject(rawbox)
     box.osgbox = rawbox
     
     box:setColor(copy and arg:getColor() or arg)

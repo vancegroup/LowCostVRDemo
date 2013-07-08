@@ -1,7 +1,7 @@
-require "myShapeObject"
+require "ShapeObjects.ShapeObject"
 
 --[[
-    class Cylinder: inherits from (and implements) myShapeObject
+    class Cylinder: inherits from (and implements) ShapeObject
         Constructors: Cylinder(color)  -- create a new Cylinder of the specified (Vec4f) color using the interactive draw sequence
                       Cylinder(cylinder_to_copy)   -- create a new Cylinder that is an exact duplicate of the one passed
         
@@ -21,7 +21,7 @@ function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4
         rawcylinder = osg.Cylinder(Vecf{0,0,0}, 0.1, 0.05)
     end
 
-    local cylinder = myShapeObject(rawcylinder, Transform{ orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) })
+    local cylinder = ShapeObject(rawcylinder, Transform{ orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) })
     cylinder.osgcylinder = rawcylinder
     
     cylinder:setColor(copy and arg:getColor() or arg)  -- arg could be either a Cylinder or a color

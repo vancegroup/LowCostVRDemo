@@ -1,7 +1,7 @@
-require "myShapeObject"
+require "ShapeObjects.ShapeObject"
 
 --[[
-    class Sphere: inherits from (and implements) myShapeObject
+    class Sphere: inherits from (and implements) ShapeObject
         Constructors: Sphere(color)  -- create a new Sphere of the specified (Vec4f) color using the interactive draw sequence
                       Sphere(sphere_to_copy)   -- create a new Sphere that is an exact duplicate of the one passed
         
@@ -21,7 +21,7 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
         rawsphere = osg.Sphere(Vecf(0,0,0), 0.01)
     end
     
-    local sphere = myShapeObject(rawsphere)
+    local sphere = ShapeObject(rawsphere)
     sphere.osgsphere = rawsphere
     
     sphere:setColor(copy and arg:getColor() or arg)  -- arg could be either a Sphere or a color

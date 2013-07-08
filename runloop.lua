@@ -1,11 +1,12 @@
 require "controls"
 require "cursor"
 require "library"
-require "Box"
-require "Cone"
-require "Cylinder"
-require "Pyramid"
-require "Sphere"
+--require "ShapeObjects.include_all"   -- alternate (old) implementations for Box, Cone, Cylinder, and Sphere
+require "ShapeObjects.Cone"
+require "ShapeObjects.Cylinder"
+require "ShapeObjects.Sphere"
+require "GeometryObjects.Box"
+require "GeometryObjects.Pyramid"
 
 -- only for sim mode testing
 require "controls_sim_mode"

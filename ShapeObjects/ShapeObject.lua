@@ -1,8 +1,8 @@
 require "myObject"
 
 --[[
-    abstract base class myShapeObject: inherits from myObject   -- for rendering osg::Shapes
-        Constructor: myShapeObject(osg::Shape, [OPTIONAL]permxform)  -- pass an osg::Shape such as an osg::Cylinder or osg::Box; may also pass a permanent transform to permanently reorient it
+    abstract base class ShapeObject: inherits from myObject   -- for rendering osg::Shapes
+        Constructor: ShapeObject(osg::Shape, [OPTIONAL]permxform)  -- pass an osg::Shape such as an osg::Cylinder or osg::Box; may also pass a permanent transform to permanently reorient it
         
         implements some of the abstract methods of myObject
         
@@ -11,7 +11,7 @@ require "myObject"
         
 ]]--
 
-function myShapeObject(osgshape, permxform)
+function ShapeObject(osgshape, permxform)
     local shapeDrawable = osg.ShapeDrawable(osgshape)
     local geode = osg.Geode()
     geode:addDrawable(shapeDrawable)

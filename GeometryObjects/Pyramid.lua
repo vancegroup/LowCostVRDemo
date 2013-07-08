@@ -1,8 +1,8 @@
-require "myGeometryObject"
+require "GeometryObjects.GeometryObject"
 require "gldef"
 
 --[[
-    class Pyramid: inherits from (and implements) myObject
+    class Pyramid: inherits from (and implements) GeometryObject
         Constructors: Pyramid(color)  -- create a new Pyramid of the specified (Vec4f) color using the interactive draw sequence
                       Pyramid(pyramid_to_copy)   -- create a new Pyramid that is an exact duplicate of the one passed
         
@@ -14,19 +14,18 @@ require "gldef"
         void :setHeight(float)
         float :getHeight()
         float, float :getHalfLengthsAtPercentHeight(float)   -- pass the percent up the height, where 1 is the tip and 0 is the base, receive the halfLengths at that height
-        
-        .vertexArray  -- the osg::Vec3Array used as the vertex array for the geometry
 ]]--
 
 function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f color for interactive draw, or an existing Pyramid to copy
     copy = (type(arg) == "table")   -- copy will be true if an object to copy was passed, but false if a color was passed
     
-    pyramid = myGeometryObject()
+    pyramid = GeometryObject()
     
     if copy then
-        pyramid.vertexArray = arg.vertexArray
+        for i = 1, #pyramid.vertexArray.Item do
+            pyramid.vertexArray.Item[i] = Vecf(arg.vertexArray.Item[i])
+        end
     else
-        pyramid.vertexArray = osg.Vec3Array()
         pyramid.vertexArray.Item[1] = Vecf(0.05, 0, 0.05)
         pyramid.vertexArray.Item[2] = Vecf(-0.05, 0, 0.05)
         pyramid.vertexArray.Item[3] = Vecf(-0.05, 0, -0.05)
@@ -35,7 +34,7 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
     end
     
     local base = osg.DrawElementsUShort(gldef.GL_QUADS, 0)  -- 0 is the index in pyramid.vertexArray to start from
-    base.Item:insert( osgLua.GLushort(3) )   -- does this still refer to the vertices above with a 0-based index? How smart is the Lua binding?
+    base.Item:insert( osgLua.GLushort(3) )   -- This refers to the vertices above with a 0-based index. So '3' here refers to the 4th index, which is Item[4]. Blame the Lua binding for this.
     base.Item:insert( osgLua.GLushort(2) )
     base.Item:insert( osgLua.GLushort(1) )
     base.Item:insert( osgLua.GLushort(0) )
@@ -60,11 +59,7 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
 
     pyramid:setColor(copy and arg:getColor() or arg)  -- arg could be either a Pyramid or a color
     
-    pyramid.getCenterInWorldCoords = Pyramid_getCenterInWorldCoords
-    pyramid.initializeScaling = Pyramid_initializeScaling
-    pyramid.scale = Pyramid_scale
     pyramid.contains = Pyramid_contains
-    pyramid.removeObject = Pyramid_removeObject
     pyramid.getHalfLengthsAtPercentHeight = Pyramid_getHalfLengthsAtPercentHeight
     
     pyramid.setBaseHalfLengths = function(_, xHalfLength, zHalfLength)
@@ -148,20 +143,6 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
     return pyramid
 end
 
-function Pyramid_getCenterInWorldCoords(pyramid)
-    return pyramid:getLocalToWorldCoords():preMult(Vecf(0,0,0))   -- the local center is always (0,0,0) for the pyramid
-end
-
-function Pyramid_initializeScaling(pyramid)
-    pyramid.initialHalfLengthX, pyramid.initialHalfLengthZ = pyramid:getBaseHalfLengths()
-    pyramid.initialHeight = pyramid:getHeight()
-end
-
-function Pyramid_scale(pyramid, newScale)
-    pyramid:setBaseHalfLengths(pyramid.initialHalfLengthX*newScale, pyramid.initialHalfLengthZ*newScale)
-    pyramid:setHeight(pyramid.initialHeight*newScale)
-end
-
 function Pyramid_contains(pyramid, vec)
     local vecInLocalCoords = pyramid:getWorldToLocalCoords():preMult(vec)
     local percentHeight = vecInLocalCoords:y() / pyramid:getHeight()
@@ -175,10 +156,6 @@ function Pyramid_contains(pyramid, vec)
             return true
         end
     end
-end
-
-function Pyramid_removeObject(pyramid)
-    RelativeTo.World:removeChild(pyramid.attach_here)
 end
     
 function Pyramid_getHalfLengthsAtPercentHeight(pyramid, percent)

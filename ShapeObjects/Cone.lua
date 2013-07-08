@@ -1,7 +1,7 @@
-require "myShapeObject"
+require "ShapeObjects.ShapeObject"
 
 --[[
-    class Cone: inherits from (and implements) myShapeObject
+    class Cone: inherits from (and implements) ShapeObject
         Constructors: Cone(color)  -- create a new Cone of the specified (Vec4f) color using the interactive draw sequence
                       Cone(cone_to_copy)   -- create a new Cone that is an exact duplicate of the one passed
         
@@ -21,7 +21,7 @@ function Cone(arg)  -- both constructors in one function. Pass either a Vec4f co
     else
         rawcone = osg.Cone(Vecf(0,0,0), 0.05, 0.01)
     end
-    local cone = myShapeObject(rawcone, Transform{ orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) })
+    local cone = ShapeObject(rawcone, Transform{ orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}) })
     cone.osgcone = rawcone
     
     cone:setColor(copy and arg:getColor() or arg)  -- arg could be either a Cone or a color
