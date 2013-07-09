@@ -56,7 +56,7 @@ function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4
         local deltax, deltay, deltaz = getDeltas(startLoc, endLoc)
         cylinder:setCenter(Vec(centerPos))
         local newradius = (deltax^2+deltaz^2)^0.5/2.0  -- the diameter is the xz-distance between startLoc and endLoc. Divide by 2 to get the radius. xz-distance is used because the cylinder expands in the xz-plane and cannot be expanded in y during this step (making the base).
-        if (newradius > 0.1) then
+        if newradius > 0.1 then
             cylinder.osgcylinder:setRadius( newradius )
         end
         Actions.waitForRedraw()
@@ -79,7 +79,7 @@ function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4
         if (math.abs(deltay) > 0.05) then
             cylinder.osgcylinder:setHeight(math.abs(deltay))
         end
-        cylinder:setCenter(Vec(centerPos:x(), centerPos:y()+0.5*deltay, centerPos:z()))    -- the center is halfway up the height
+        cylinder:setCenter(Vec(centerPos:x(), centerPos:y()+0.5*deltay, centerPos:z()))   -- the center is halfway up the height
         Actions.waitForRedraw()
     until not hold_to_draw_button.pressed
 

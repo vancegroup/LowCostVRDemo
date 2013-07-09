@@ -10,7 +10,7 @@ require "gldef"
         
         Additional private members:
         void :setBaseHalfLengths(float, float)  -- x by z dimensions of the base, as HalfLengths
-        float, float :getHalfLengths()  -- returns two floats representing the current HalfLengths of the base (x then z)
+        float, float :getBaseHalfLengths()  -- returns two floats representing the current HalfLengths of the base (x then z)
         void :setHeight(float)
         float :getHeight()
         float, float :getHalfLengthsAtPercentHeight(float)   -- pass the percent up the height, where 1 is the tip and 0 is the base, receive the halfLengths at that height
@@ -21,20 +21,24 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
     
     pyramid = GeometryObject()
     
+    pyramid.setBaseHalfLengths = Pyramid_setBaseHalfLengths
+    pyramid.getBaseHalfLengths = Pyramid_getBaseHalfLengths
+    pyramid.setHeight = Pyramid_setHeight
+    pyramid.getHeight = Pyramid_getHeight
+    pyramid.contains = Pyramid_contains
+    pyramid.getHalfLengthsAtPercentHeight = Pyramid_getHalfLengthsAtPercentHeight
+    
     if copy then
-        for i = 1, #pyramid.vertexArray.Item do
+        for i = 1, #arg.vertexArray.Item do
             pyramid.vertexArray.Item[i] = Vecf(arg.vertexArray.Item[i])
         end
     else
-        pyramid.vertexArray.Item[1] = Vecf(0.05, 0, 0.05)
-        pyramid.vertexArray.Item[2] = Vecf(-0.05, 0, 0.05)
-        pyramid.vertexArray.Item[3] = Vecf(-0.05, 0, -0.05)
-        pyramid.vertexArray.Item[4] = Vecf(0.05, 0, -0.05)
-        pyramid.vertexArray.Item[5] = Vecf(0, 0.05, 0)   -- peak
+        pyramid.setBaseHalfLengths(0.05, 0.05)
+        pyramid.setHeight(0.05)
     end
     
     local base = osg.DrawElementsUShort(gldef.GL_QUADS, 0)  -- 0 is the index in pyramid.vertexArray to start from
-    base.Item:insert( osgLua.GLushort(3) )   -- This refers to the vertices above with a 0-based index. So '3' here refers to the 4th index, which is Item[4]. Blame the Lua binding for this.
+    base.Item:insert( osgLua.GLushort(3) )   -- This refers to the vertices in pyramid.vertexArray with a 0-based index. So '3' here refers to the 4th index, which is vertexArray.Item[4]. Blame the Lua binding for this.
     base.Item:insert( osgLua.GLushort(2) )
     base.Item:insert( osgLua.GLushort(1) )
     base.Item:insert( osgLua.GLushort(0) )
@@ -58,30 +62,6 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
     pyramid.geometry:addPrimitiveSet(faces)
 
     pyramid:setColor(copy and arg:getColor() or arg)  -- arg could be either a Pyramid or a color
-    
-    pyramid.contains = Pyramid_contains
-    pyramid.getHalfLengthsAtPercentHeight = Pyramid_getHalfLengthsAtPercentHeight
-    
-    pyramid.setBaseHalfLengths = function(_, xHalfLength, zHalfLength)
-        local oldHeight = pyramid:getHeight()
-        pyramid.vertexArray.Item[1] = Vecf(xHalfLength, 0, zHalfLength)
-        pyramid.vertexArray.Item[2] = Vecf(-xHalfLength, 0, zHalfLength)
-        pyramid.vertexArray.Item[3] = Vecf(-xHalfLength, 0, -zHalfLength)
-        pyramid.vertexArray.Item[4] = Vecf(xHalfLength, 0, -zHalfLength)
-        pyramid.vertexArray.Item[5] = Vecf(0, oldHeight, 0)  -- leave height unchanged
-    end
-    
-    pyramid.getBaseHalfLengths = function()
-        return pyramid.vertexArray.Item[1]:x(), pyramid.vertexArray.Item[1]:z()
-    end
-    
-    pyramid.setHeight = function(_, height)
-        pyramid.vertexArray.Item[5] = Vecf(0, height, 0)   -- the new peak vertex
-    end
-    
-    pyramid.getHeight = function()
-        return pyramid.vertexArray.Item[5]:y()
-    end
     
     if copy then
         pyramid:setCenter(arg:getCenterDisplacement())
@@ -143,6 +123,28 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
     return pyramid
 end
 
+-- Pyramid's vertexArray is structured:
+--      Index 1-4:   The four corners of the base
+--      Index 5:   Peak
+Pyramid_setBaseHalfLengths = function(pyramid, xHalfLength, zHalfLength)
+    pyramid.vertexArray.Item[1] = Vecf(xHalfLength, 0, zHalfLength)
+    pyramid.vertexArray.Item[2] = Vecf(-xHalfLength, 0, zHalfLength)
+    pyramid.vertexArray.Item[3] = Vecf(-xHalfLength, 0, -zHalfLength)
+    pyramid.vertexArray.Item[4] = Vecf(xHalfLength, 0, -zHalfLength)
+end
+    
+Pyramid_getBaseHalfLengths = function(pyramid)
+    return pyramid.vertexArray.Item[1]:x(), pyramid.vertexArray.Item[1]:z()
+end
+
+Pyramid_setHeight = function(pyramid, height)
+    pyramid.vertexArray.Item[5] = Vecf(0, height, 0)   -- the new peak vertex
+end
+
+Pyramid_getHeight = function(pyramid)
+    return pyramid.vertexArray.Item[5]:y()
+end
+    
 function Pyramid_contains(pyramid, vec)
     local vecInLocalCoords = pyramid:getWorldToLocalCoords():preMult(vec)
     local percentHeight = vecInLocalCoords:y() / pyramid:getHeight()

@@ -1,0 +1,5 @@
+require "GeometryObjects.Box"
+require "GeometryObjects.Cone"
+require "GeometryObjects.Cylinder"
+require "GeometryObjects.Pyramid"
+require "GeometryObjects.Sphere"

@@ -53,7 +53,7 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
         local endLoc = Vecf(wand.position)
         sphere:setCenter(Vec(avgPosf(startLoc, endLoc)))
         local newradius = (endLoc - startLoc):length() / 2
-        if (newradius > 0.01) then
+        if newradius > 0.01 then
             sphere.osgsphere:setRadius( newradius )
         end
         Actions.waitForRedraw()

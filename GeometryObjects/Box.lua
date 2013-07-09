@@ -23,7 +23,7 @@ function Box(arg)  -- both constructors in one function. Pass either a Vec4f col
     box.contains = Box_contains
     
     if copy then
-        for i = 1, #box.vertexArray.Item do
+        for i = 1, #arg.vertexArray.Item do
             box.vertexArray.Item[i] = Vecf(arg.vertexArray.Item[i])
         end
     else
@@ -31,7 +31,7 @@ function Box(arg)  -- both constructors in one function. Pass either a Vec4f col
     end
     
     local faceStrip = osg.DrawElementsUShort(gldef.GL_QUAD_STRIP, 0)  -- the top, back, bottom, and front faces in that order
-    faceStrip.Item:insert( osgLua.GLushort(0) )   -- This refers to the vertices above with a 0-based index. So '3' here refers to the 4th index, which is Item[4]. Blame the Lua binding for this.
+    faceStrip.Item:insert( osgLua.GLushort(0) )   -- This refers to the vertices in vertexArray with a 0-based index. So '3' here refers to the 4th index, which is vertexArray.Item[4]. Blame the Lua binding for this.
     faceStrip.Item:insert( osgLua.GLushort(1) )
     faceStrip.Item:insert( osgLua.GLushort(2) )
     faceStrip.Item:insert( osgLua.GLushort(3) )
