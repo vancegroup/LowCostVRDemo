@@ -6,6 +6,9 @@ require "myObject"
         
         implements some of the abstract methods of myObject
         
+        New public members:
+        :stretch(newScale, axis)   -- Stretch the GeometryObject in one dimension while leaving the other two alone. Use the same :initializeScaling() as for :scale(). The second parameter should be one of 'x', 'y', or 'z' to indicate which axis to stretch along.
+        
         Protected members:
         .geometry  -- the osg::Geometry underlying the GeometryObject
         
@@ -51,11 +54,31 @@ function GeometryObject()
     end
     
     geomObject.scale = function(_, newScale)
+        print("Scaling to ", newScale)
         for i = 1, #geomObject.vertexArray.Item do
             geomObject.vertexArray.Item[i] = Vecf(geomObject.initialVertexArray.Item[i]) * newScale   -- scales toward or away from (0,0,0) as the center
         end
     end
     
+    geomObject.stretch = function(_, newScale, axis)
+        print("Stretching to ", newScale)
+        if axis == 'x' then
+            for i = 1, #geomObject.vertexArray.Item do
+                geomObject.vertexArray.Item[i] = Vecf(geomObject.initialVertexArray.Item[i]:x()*newScale, geomObject.initialVertexArray.Item[i]:y(), geomObject.initialVertexArray.Item[i]:z())
+            end
+        elseif axis == 'y' then
+            for i = 1, #geomObject.vertexArray.Item do
+                geomObject.vertexArray.Item[i] = Vecf(geomObject.initialVertexArray.Item[i]:x(), geomObject.initialVertexArray.Item[i]:y()*newScale, geomObject.initialVertexArray.Item[i]:z())
+            end
+        elseif axis == 'z' then
+            for i = 1, #geomObject.vertexArray.Item do
+                geomObject.vertexArray.Item[i] = Vecf(geomObject.initialVertexArray.Item[i]:x(), geomObject.initialVertexArray.Item[i]:y(), geomObject.initialVertexArray.Item[i]:z()*newScale)
+            end
+        else
+            print("Error: unrecognized argument to stretch(): ", axis)
+        end
+    end
+
     geomObject.getCenterInWorldCoords = function()
         return geomObject:getLocalToWorldCoords():preMult(Vecf(0,0,0))   -- the local center is always (0,0,0)
     end

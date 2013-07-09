@@ -67,7 +67,7 @@ function runloop()
             end
         
         elseif hold_to_scale_button.justPressed then
-            
+        
             -- make a list of all selected objects
             local selectedObjects = {}
             for _, object in ipairs(objects) do
@@ -98,6 +98,77 @@ function runloop()
                 Actions.waitForRedraw()   -- all other commands are put on hold until the scale button is released (including changing selection, etc)
             
             until not hold_to_scale_button.pressed
+            
+            -- finalize editing for all selected objects
+            for _, object in ipairs(selectedObjects) do
+                object:closeForEditing()
+                grab(object)  -- because we ungrabbed them during initialization of the operation
+            end
+        
+        elseif hold_to_stretch_button.justPressed then
+            
+            -- make a list of all selected objects
+            local selectedObjects = {}
+            for _, object in ipairs(objects) do
+                if object.selected then 
+                    if object.geometry then
+                        table.insert(selectedObjects, object)
+                    else
+                        print("Error: ShapeObjects cannot be stretched")
+                    end
+                end
+            end
+            
+            -- initialize all selected objects for the operation
+            local startLoc;
+            for _, object in ipairs(selectedObjects) do
+                ungrab(object)  -- keep objects locked in place during scaling
+                object:openForEditing()
+                startLoc = Vecf(wand.position)
+                object.initialDistFromCenter = (startLoc - object:getCenterInWorldCoords()):length()
+                object:initializeScaling()
+            end
+            
+            -- determine which axis the user intends to scale along
+            local DETERMINATION_THRESHOLD = 0.2   -- once the wand is moved this distance along any axis after the stretch button is pressed, that axis is considered chosen
+            local axis;
+            local done = false
+            startLoc = Vecf(wand.position)
+            repeat
+            
+                local endLoc = Vecf(wand.position)
+                deltax, deltay, deltaz = getDeltas(startLoc, endLoc)
+                if math.abs(deltax) > DETERMINATION_THRESHOLD then
+                    axis = 'x'
+                    done = true
+                elseif math.abs(deltay) > DETERMINATION_THRESHOLD then
+                    axis = 'y'
+                    done = true
+                elseif math.abs(deltaz) > DETERMINATION_THRESHOLD then
+                    axis = 'z'
+                    done = true
+                end
+                
+                Actions.waitForRedraw()
+                
+            until done
+            
+            print("Determined to stretch along the ", axis, " axis.")
+            
+            -- perform the operation while the button is held down
+            repeat
+                
+                local endLoc = Vecf(wand.position)
+                
+                for _, object in ipairs(selectedObjects) do
+                    object.newDistFromCenter = (endLoc - object:getCenterInWorldCoords()):length()
+                    local newScale = 1.0 + (object.newDistFromCenter-object.initialDistFromCenter)/object.initialDistFromCenter  -- scaling is still based on the distance from the object's center in all 3 dimensions, even though changes only happen in 1 dimension. The dimension it happens along was determined by where the wand was moved first; after that movement in any direction changes the scaling. This way the controls seem responsive.
+                    object:stretch(newScale, axis)
+                end
+            
+                Actions.waitForRedraw()   -- all other commands are put on hold until the stretch button is released (including changing selection, etc)
+            
+            until not hold_to_stretch_button.pressed
             
             -- finalize editing for all selected objects
             for _, object in ipairs(selectedObjects) do
