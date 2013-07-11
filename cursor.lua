@@ -7,7 +7,7 @@ require "controls"  -- wand
         Vec3f :getPosition()
         void :changeAppearance(node)   -- pass any node (i.e. Transform, Geode) and it will be rendered as the new cursor image
         
-        .sensitivity  -- the sensitivity factor. Higher numbers make smaller wand movements move the cursor farther on-screen. Negative numbers will invert the wand, so don't use them.
+        .sensitivity  -- Vec3d, the sensitivity factor (along each axis). Higher numbers make smaller wand movements move the cursor farther on-screen. Negative numbers will invert the wand, so don't use them.
         .defaultAppearance   -- a node to pass to :changeAppearance that contains the default appearance parameters
         -- alternate appearances to be added in the future
 ]]--
@@ -20,7 +20,8 @@ function Cursor()
 
     local xform = osg.MatrixTransform(wand.matrix)
 
-    cursor.sensitivity = CURSOR_SENSITIVITY
+    cursor.sensitivity = Vec(CURSOR_SENSITIVITY, CURSOR_SENSITIVITY, CURSOR_SENSITIVITY)
+    print(cursor.sensitivity)
     
     cursor.changeAppearance = function(cursor, geode)
         xform:removeChildren(0, xform:getNumChildren())
@@ -37,14 +38,16 @@ function Cursor()
     cursor.defaultAppearance = permxform
     
     cursor.getPosition = function()
-        return cursor.sensitivity * Vecf(xform:getWorldMatrices(RelativeTo.World).Item[1]:preMult(Vec(0,0,0)))
+        return Vecf(xform:getWorldMatrices(RelativeTo.World).Item[1]:preMult(Vec(0,0,0)))
     end
     
     cursor:changeAppearance(cursor.defaultAppearance)
     World:addChild(xform)
     Actions.addFrameAction(function()
         while true do
-            xform:setMatrix(wand.matrix)
+            local wandMatrix = wand.matrix
+            wandMatrix:postMult(osg.Matrixd.scale(cursor.sensitivity))
+            xform:setMatrix(wandMatrix)
             Actions.waitForRedraw()
         end
     end)
