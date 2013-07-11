@@ -17,7 +17,7 @@ function myTransparentGroup(arg)
 	mystate:setAttributeAndModes(bf)
 
 	local bc = osg.BlendColor(osg.Vec4(1.0, 1.0, 1.0, arg.alpha or 0.5))
---	mystate:setAttributeAndModes(bc)
+	mystate:setAttributeAndModes(bc)
 	group:setStateSet(mystate)
 	alphastates[group] = mystate
 	return group
