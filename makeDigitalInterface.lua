@@ -21,7 +21,7 @@ function makeDigitalInterface(analog, name, dir)
                 _G[name].justChanged = false
                 repeat
                     Actions.waitForRedraw()
-                until analog.data < 0.4
+                until analog.data < 0.25
                 
                 -- just pressed
                 _G[name].justPressed = true
@@ -53,7 +53,7 @@ function makeDigitalInterface(analog, name, dir)
                 _G[name].justChanged = false
                 repeat
                     Actions.waitForRedraw()
-                until analog.data > 0.6
+                until analog.data > 0.75
                 
                 -- just pressed
                 _G[name].justPressed = true
