@@ -108,7 +108,6 @@ cmxform:addChild(cmimage1)
 transpCM = myTransparentGroup({cmxform, alpha = 0.5})
 xform1:addChild(transpCM)
 
-
 -- initialize to 1 and 1 automatically
 colorIndex = 1
 shapeIndex = 1
@@ -122,6 +121,7 @@ function libraryCalled()
     while true do
         if open_library_button.justPressed and not libraryJustCalled then
             RelativeTo.Room:removeChild(xform1)
+			return
         elseif library_switch_up_button.justPressed or library_switch_down_button.justPressed then
             if activeMenu == 2 then
                 activeMenu = 1
