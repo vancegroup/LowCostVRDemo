@@ -86,12 +86,12 @@ menu = {shapeMenu, colorMenu}
 -- set up position to draw menus
 cmxform = Transform{
 	position={0,0.43,0},
-	orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
+	--orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
 }
 	
 smxform = Transform{
 	position={0,1.07,0},
-	orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
+	--orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
 }
 
 -- makes the menus always display in screen coordinates
@@ -114,7 +114,7 @@ shapeIndex = 1
 
 function libraryCalled()
 	RelativeTo.Room:addChild(xform1)
-	
+	print("added to room")
 	activeMenu = 1
 
 	libraryJustCalled = true
@@ -165,5 +165,3 @@ function libraryCalled()
         Actions.waitForRedraw()
 	end
 end
-
--- [[ How are you going to adjust for different screen sizes??]]

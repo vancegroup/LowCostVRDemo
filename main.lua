@@ -6,7 +6,7 @@ if not string.find(package.path, scriptFolder) then package.path = scriptFolder 
 
 --dofile(scriptFolder .. "/help.lua")
 
-local master_xform = Transform{ position = {0, 0, -10}  }   -- make everything happen "farther back" in the scene
+local master_xform = Transform{ position = {0, 0, -5}  }   -- make everything happen "farther back" in the scene
 RelativeTo.World:addChild(master_xform)
 World = master_xform    -- code in this application should use this global World and not RelativeTo.World
 
