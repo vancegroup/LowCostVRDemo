@@ -12,7 +12,7 @@ require "controls"  -- wand
         -- alternate appearances to be added in the future
 ]]--
 
-local CURSOR_SENSITIVITY = 5   -- the value to initialize cursor.sensitivity to
+local CURSOR_SENSITIVITY = 2   -- the value to initialize cursor.sensitivity to
 
 function Cursor()
 
@@ -48,6 +48,7 @@ function Cursor()
             wandMatrix = wand.matrix
             wandMatrix:postMult(osg.Matrixd.scale(cursor.sensitivity))
             xform:setMatrix(wandMatrix)
+			print(wandMatrix:getTrans())
             Actions.waitForRedraw()
         end
     end)
