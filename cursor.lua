@@ -21,7 +21,6 @@ function Cursor()
     local xform = osg.MatrixTransform(wand.matrix)
 
     cursor.sensitivity = Vec(CURSOR_SENSITIVITY, CURSOR_SENSITIVITY, CURSOR_SENSITIVITY)
-    print(cursor.sensitivity)
     
     cursor.changeAppearance = function(cursor, geode)
         xform:removeChildren(0, xform:getNumChildren())
@@ -44,8 +43,9 @@ function Cursor()
     cursor:changeAppearance(cursor.defaultAppearance)
     World:addChild(xform)
     Actions.addFrameAction(function()
+        local wandMatrix
         while true do
-            local wandMatrix = wand.matrix
+            wandMatrix = wand.matrix
             wandMatrix:postMult(osg.Matrixd.scale(cursor.sensitivity))
             xform:setMatrix(wandMatrix)
             Actions.waitForRedraw()
