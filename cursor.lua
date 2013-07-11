@@ -7,9 +7,12 @@ require "controls"  -- wand
         Vec3f :getPosition()
         void :changeAppearance(node)   -- pass any node (i.e. Transform, Geode) and it will be rendered as the new cursor image
         
+        .sensitivity  -- the sensitivity factor. Higher numbers make smaller wand movements move the cursor farther on-screen. Negative numbers will invert the wand, so don't use them.
         .defaultAppearance   -- a node to pass to :changeAppearance that contains the default appearance parameters
         -- alternate appearances to be added in the future
 ]]--
+
+local CURSOR_SENSITIVITY = 5   -- the value to initialize cursor.sensitivity to
 
 function Cursor()
 
@@ -17,6 +20,8 @@ function Cursor()
 
     local xform = osg.MatrixTransform(wand.matrix)
 
+    cursor.sensitivity = CURSOR_SENSITIVITY
+    
     cursor.changeAppearance = function(cursor, geode)
         xform:removeChildren(0, xform:getNumChildren())
         xform:addChild(geode)
@@ -32,7 +37,7 @@ function Cursor()
     cursor.defaultAppearance = permxform
     
     cursor.getPosition = function()
-        return Vecf(xform:getWorldMatrices(RelativeTo.World).Item[1]:preMult(Vec(0,0,0)))
+        return cursor.sensitivity * Vecf(xform:getWorldMatrices(RelativeTo.World).Item[1]:preMult(Vec(0,0,0)))
     end
     
     cursor:changeAppearance(cursor.defaultAppearance)
