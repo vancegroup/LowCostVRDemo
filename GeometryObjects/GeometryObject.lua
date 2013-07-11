@@ -54,7 +54,6 @@ function GeometryObject()
     end
     
     geomObject.scale = function(_, newScale)
-        print("Scaling to ", newScale)
         for i = 1, #geomObject.vertexArray.Item do
             geomObject.vertexArray.Item[i] = Vecf(geomObject.initialVertexArray.Item[i]) * newScale   -- scales toward or away from (0,0,0) as the center
         end
@@ -84,7 +83,7 @@ function GeometryObject()
     end
     
     geomObject.removeObject = function()
-        RelativeTo.World:removeChild(geomObject.attach_here)
+        World:removeChild(geomObject.attach_here)
     end
     
     return geomObject

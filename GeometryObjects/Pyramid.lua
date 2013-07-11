@@ -33,8 +33,8 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
             pyramid.vertexArray.Item[i] = Vecf(arg.vertexArray.Item[i])
         end
     else
-        pyramid.setBaseHalfLengths(0.05, 0.05)
-        pyramid.setHeight(0.05)
+        pyramid:setBaseHalfLengths(0.05, 0.05)
+        pyramid:setHeight(0.05)
     end
     
     local base = osg.DrawElementsUShort(gldef.GL_QUADS, 0)  -- 0 is the index in pyramid.vertexArray to start from
@@ -65,7 +65,7 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
     
     if copy then
         pyramid:setCenter(arg:getCenterDisplacement())
-        RelativeTo.World:addChild(pyramid.attach_here)
+        World:addChild(pyramid.attach_here)
         return pyramid
         -- copy complete
     end
@@ -75,15 +75,15 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
         Actions.waitForRedraw()
     until hold_to_draw_button.pressed
 
-    local startLoc = Vecf(wand.position)   -- the location the button was first pressed
+    World:addChild(pyramid.attach_here)
+    local startLoc = pyramid:getCursorPositionInConstructionCoords()   -- the location the button was first pressed
     local centerPos = startLoc
     pyramid:setCenter(Vec(startLoc))
-    RelativeTo.World:addChild(pyramid.attach_here)
     
     pyramid:openForEditing()
     
     repeat
-        local endLoc = Vecf(wand.position)
+        local endLoc = pyramid:getCursorPositionInConstructionCoords()
         centerPos = avgPosf_lock_y(startLoc, endLoc)
         pyramid:setCenter(Vec(centerPos))
         local deltax, deltay, deltaz = getDeltas(startLoc, endLoc)
@@ -103,11 +103,11 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
 
     -- hold_to_draw_button was pressed the second time
 
-    startLoc = Vecf(wand.position)
+    startLoc = pyramid:getCursorPositionInConstructionCoords()
     
     -- centerPos persists as the coordinates of the center of the base of the pyramid
     repeat
-        local endLoc = Vecf(wand.position)
+        local endLoc = pyramid:getCursorPositionInConstructionCoords()
         local deltay = endLoc:y()-startLoc:y()
         if (math.abs(deltay) > 0.05) then
             pyramid:setHeight(math.abs(deltay))

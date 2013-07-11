@@ -36,7 +36,7 @@ function Cursor()
     end
     
     cursor:changeAppearance(cursor.defaultAppearance)
-    RelativeTo.World:addChild(xform)
+    World:addChild(xform)
     Actions.addFrameAction(function()
         while true do
             xform:setMatrix(wand.matrix)

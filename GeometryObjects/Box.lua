@@ -60,7 +60,7 @@ function Box(arg)  -- both constructors in one function. Pass either a Vec4f col
     
     if copy then
         box:setCenter(arg:getCenterDisplacement())
-        RelativeTo.World:addChild(box.attach_here)
+        World:addChild(box.attach_here)
         return box
         -- copy complete
     end
@@ -69,15 +69,15 @@ function Box(arg)  -- both constructors in one function. Pass either a Vec4f col
     repeat
         Actions.waitForRedraw()
     until hold_to_draw_button.pressed
-
-    local startLoc = Vecf(wand.position)   -- the location the button was first pressed
+    
+    World:addChild(box.attach_here)
+    local startLoc = box:getCursorPositionInConstructionCoords()   -- the location the button was first pressed
     box:setCenter(Vec(startLoc))
-    RelativeTo.World:addChild(box.attach_here)
     
     box:openForEditing()
     
     repeat
-        local endLoc = Vecf(wand.position)
+        local endLoc = box:getCursorPositionInConstructionCoords()
         box:setCenter(Vec(avgPosf(startLoc, endLoc)))
         local deltax, deltay, deltaz = getDeltas(startLoc, endLoc)
         deltax, deltay, deltaz = 0.5*math.abs(deltax), 0.5*math.abs(deltay), 0.5*math.abs(deltaz)

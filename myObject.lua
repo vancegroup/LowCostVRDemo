@@ -24,14 +24,15 @@ require "myGrabbable"
         
         Private members:
         .xform  -- a PositionAttitudeTransform, which is responsible for moving the object's center (other than movement due to being grabbed, which is handled by the myGrabbable underlying the myObject) such that its local center can remain at local (0,0,0)
-        
+        Vec3f :getCursorPositionInConstructionCoords()   -- for use only during the object's construction
 ]]--
 
 function myObject(grabbable)
     local object = grabbable
-    object.xform = Transform { position = {0,0,0} }   -- this explained above in the class description
+    object.xform = Transform{ position = {0,0,0} }   -- this explained above in the class description
     object.xform:addChild(object.attach_here)
-    object.attach_here = object.xform  -- update the attach_here to the new outermost node in the myObject construct
+    object.attach_here = Transform{}  -- attach_here is now a new wrapper for the whole myObject, i.e. the outermost node in the construct
+    object.attach_here:addChild(object.xform)
     
     object.selected = false
     object.cursorOver = false
@@ -52,6 +53,13 @@ function myObject(grabbable)
     
     object.getCenterDisplacement = function()
         return object.xform:getPosition()
+    end
+    
+    object.getCursorPositionInConstructionCoords = function()
+        local constructionToWorldMatrix = object.attach_here:getWorldMatrices(RelativeTo.World).Item[1]
+        local worldToConstructionMatrix = osg.Matrixd.inverse(constructionToWorldMatrix)
+        return Vecf(worldToConstructionMatrix:preMult(cursor:getPosition()))
+        -- identical to return Vecf(object:getWorldToLocalCoords():preMult(cursor:getPosition())) except that the construction-coords function is unaffected by calls to setCenter(). It's also unaffected by grabbing (selecting and moving/rotating), which is why it's only suitable for use during construction before it's been grabbed.
     end
     
     return object

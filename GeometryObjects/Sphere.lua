@@ -38,6 +38,8 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
     --      the 11th strip is bounded by the equator and the 1st parallel south of it (the 11th parallel)
     --      through the 20th strip is bounded by the 9th parallel south (the 19th parallel) and the 10th (20th) parallel
     --      then we will have 2 TRIANGLE_FAN, one for between the 10th parallel and the north pole, the other for between the 20th parallel and the south pole
+    
+    -- north hemisphere
     for i = 1, 10 do
         local strip = osg.DrawElementsUShort(gldef.GL_QUAD_STRIP, 0)  -- 0 is the index in sphere.vertexArray to start from
         for j = 0, 49 do
@@ -49,8 +51,19 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
         sphere.geometry:addPrimitiveSet(strip)
     end
     
+    -- first strip south of equator
+    local strip = osg.DrawElementsUShort(gldef.GL_QUAD_STRIP, 0)
+    for j = 0, 49 do
+        strip.Item:insert( osgLua.GLushort( j ) )   -- the vertex on the equator
+        strip.Item:insert( osgLua.GLushort( 550+j ) )    -- the vertex directly below (toward the south pole from) it
+    end
+    strip.Item:insert( osgLua.GLushort( 0 ) )
+    strip.Item:insert( osgLua.GLushort( 550 ) )    -- these two calls finish the QUAD_STRIP by wrapping it around to the beginning
+    sphere.geometry:addPrimitiveSet(strip)
+    
+    -- the rest of the strips in the south hemisphere
     for i = 12, 20 do
-        local strip = osg.DrawElementsUShort(gldef.GL_QUAD_STRIP, 0)  -- 0 is the index in sphere.vertexArray to start from
+        local strip = osg.DrawElementsUShort(gldef.GL_QUAD_STRIP, 0)
         for j = 0, 49 do
             strip.Item:insert( osgLua.GLushort( (i-1)*50+j ) )     -- These calls refer to the vertices in sphere.vertexArray with a 0-based index. So a '3' here would refer to the 4th index, which is vertexArray.Item[4]. Blame the Lua binding for this.
             strip.Item:insert( osgLua.GLushort( i*50+j ) )   -- this call is the vertex below (toward the south pole from) the one from the call above.
@@ -81,7 +94,7 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
     
     if copy then
         sphere:setCenter(arg:getCenterDisplacement())
-        RelativeTo.World:addChild(sphere.attach_here)
+        World:addChild(sphere.attach_here)
         return sphere
         -- copy complete
     end
@@ -91,15 +104,15 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
         Actions.waitForRedraw()
     until hold_to_draw_button.pressed
 
-    local startLoc = Vecf(wand.position)   -- the location the button was first pressed
+    World:addChild(sphere.attach_here)
+    local startLoc = sphere:getCursorPositionInConstructionCoords()   -- the location the button was first pressed
     sphere:setCenter(Vec(startLoc))
-    RelativeTo.World:addChild(sphere.attach_here)
     
     sphere:openForEditing()
     sphere:initializeScaling()   -- we will construct the sphere by scaling it, because this is much easier computation-wise than rewriting all of its vertices every time the mouse moves during construction
     
     repeat
-        local endLoc = Vecf(wand.position)
+        local endLoc = sphere:getCursorPositionInConstructionCoords()
         sphere:setCenter(Vec(avgPosf(startLoc, endLoc)))
         local newradius = (endLoc - startLoc):length() / 2
         local scaleFactor = newradius/0.05

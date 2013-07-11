@@ -57,7 +57,7 @@ function Cone(arg)  -- both constructors in one function. Pass either a Vec4f co
     
     if copy then
         cone:setCenter(arg:getCenterDisplacement())
-        RelativeTo.World:addChild(cone.attach_here)
+        World:addChild(cone.attach_here)
         return cone
         -- copy complete
     end
@@ -67,15 +67,15 @@ function Cone(arg)  -- both constructors in one function. Pass either a Vec4f co
         Actions.waitForRedraw()
     until hold_to_draw_button.pressed
 
-    local startLoc = Vecf(wand.position)   -- the location the button was first pressed
+    World:addChild(cone.attach_here)
+    local startLoc = cone:getCursorPositionInConstructionCoords()   -- the location the button was first pressed
     local centerPos = startLoc
     cone:setCenter(Vec(startLoc))
-    RelativeTo.World:addChild(cone.attach_here)
     
     cone:openForEditing()
     
     repeat
-        local endLoc = Vecf(wand.position)
+        local endLoc = cone:getCursorPositionInConstructionCoords()
         centerPos = avgPosf_lock_y(startLoc, endLoc)
         cone:setCenter(Vec(centerPos))
         local deltax, deltay, deltaz = getDeltas(startLoc, endLoc)
@@ -94,10 +94,10 @@ function Cone(arg)  -- both constructors in one function. Pass either a Vec4f co
 
     -- hold_to_draw_button was pressed the second time
 
-    startLoc = Vecf(wand.position)
+    startLoc = cone:getCursorPositionInConstructionCoords()
     
     repeat
-        local endLoc = Vecf(wand.position)
+        local endLoc = cone:getCursorPositionInConstructionCoords()
         local deltay = endLoc:y()-startLoc:y()
         if deltay > 0.05 then
             cone:setHeight(deltay)

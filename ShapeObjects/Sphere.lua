@@ -34,7 +34,7 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
     
     if copy then
         sphere:setCenter(arg:getCenterDisplacement())
-        RelativeTo.World:addChild(sphere.attach_here)
+        World:addChild(sphere.attach_here)
         return sphere
         -- copy complete
     end
@@ -44,13 +44,13 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
         Actions.waitForRedraw()
     until hold_to_draw_button.pressed
     
-    local startLoc = Vecf(wand.position)   -- the location the button was first pressed
+    local startLoc = sphere:getCursorPositionInConstructionCoords()   -- the location the button was first pressed
     sphere:setCenter(Vec(startLoc))
-    RelativeTo.World:addChild(sphere.attach_here)
+    World:addChild(sphere.attach_here)
     sphere:openForEditing()
     
     repeat
-        local endLoc = Vecf(wand.position)
+        local endLoc = sphere:getCursorPositionInConstructionCoords()
         sphere:setCenter(Vec(avgPosf(startLoc, endLoc)))
         local newradius = (endLoc - startLoc):length() / 2
         if newradius > 0.01 then
@@ -86,5 +86,5 @@ function Sphere_contains(sphere, vec)
 end
 
 function Sphere_removeObject(sphere)
-    RelativeTo.World:removeChild(sphere.attach_here)
+    World:removeChild(sphere.attach_here)
 end

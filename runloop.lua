@@ -10,7 +10,7 @@ require "controls_sim_mode"
 objects = {}  -- list of all myObjects that have been created (numerically indexed)
 
 function runloop()
-    local cursor = Cursor()  -- initialize the cursor
+    cursor = Cursor()  -- initialize the cursor, globally accessible
     
     while true do
         
@@ -79,7 +79,7 @@ function runloop()
             for _, object in ipairs(selectedObjects) do
                 ungrab(object)  -- keep objects locked in place during scaling
                 object:openForEditing()
-                startLoc = Vecf(wand.position)
+                startLoc = Vecf(cursor:getPosition())
                 object.initialDistFromCenter = (startLoc - object:getCenterInWorldCoords()):length()
                 object:initializeScaling()
             end
@@ -87,7 +87,7 @@ function runloop()
             -- perform the operation while the button is held down
             repeat
                 
-                local endLoc = Vecf(wand.position)
+                local endLoc = Vecf(cursor:getPosition())
                 
                 for _, object in ipairs(selectedObjects) do
                     object.newDistFromCenter = (endLoc - object:getCenterInWorldCoords()):length()
@@ -119,61 +119,72 @@ function runloop()
                 end
             end
             
-            -- initialize all selected objects for the operation
-            local startLoc;
-            for _, object in ipairs(selectedObjects) do
-                ungrab(object)  -- keep objects locked in place during scaling
-                object:openForEditing()
-                startLoc = Vecf(wand.position)
-                object.initialDistFromCenter = (startLoc - object:getCenterInWorldCoords()):length()
-                object:initializeScaling()
-            end
+            if next(selectedObjects) ~= nil then   -- makes sure table is not empty
             
-            -- determine which axis the user intends to scale along
-            local DETERMINATION_THRESHOLD = 0.2   -- once the wand is moved this distance along any axis after the stretch button is pressed, that axis is considered chosen
-            local axis;
-            local done = false
-            startLoc = Vecf(wand.position)
-            repeat
-            
-                local endLoc = Vecf(wand.position)
-                deltax, deltay, deltaz = getDeltas(startLoc, endLoc)
-                if math.abs(deltax) > DETERMINATION_THRESHOLD then
-                    axis = 'x'
-                    done = true
-                elseif math.abs(deltay) > DETERMINATION_THRESHOLD then
-                    axis = 'y'
-                    done = true
-                elseif math.abs(deltaz) > DETERMINATION_THRESHOLD then
-                    axis = 'z'
-                    done = true
-                end
-                
-                Actions.waitForRedraw()
-                
-            until done
-            
-            print("Determined to stretch along the ", axis, " axis.")
-            
-            -- perform the operation while the button is held down
-            repeat
-                
-                local endLoc = Vecf(wand.position)
-                
+                -- initialize all selected objects for the operation
+                local startLoc;
                 for _, object in ipairs(selectedObjects) do
-                    object.newDistFromCenter = (endLoc - object:getCenterInWorldCoords()):length()
-                    local newScale = 1.0 + (object.newDistFromCenter-object.initialDistFromCenter)/object.initialDistFromCenter  -- scaling is still based on the distance from the object's center in all 3 dimensions, even though changes only happen in 1 dimension. The dimension it happens along was determined by where the wand was moved first; after that movement in any direction changes the scaling. This way the controls seem responsive.
-                    object:stretch(newScale, axis)
+                    ungrab(object)  -- keep objects locked in place during scaling
+                    object:openForEditing()
+                    startLoc = Vecf(cursor:getPosition())
+                    object.initialDistFromCenter = (startLoc - object:getCenterInWorldCoords()):length()
+                    print("Cursor position reported as ", startLoc)
+                    print("Object center in world coords is ", object:getCenterInWorldCoords())
+                    print("initialDistFromCenter = ", object.initialDistFromCenter)
+                    object:initializeScaling()
                 end
-            
-                Actions.waitForRedraw()   -- all other commands are put on hold until the stretch button is released (including changing selection, etc)
-            
-            until not hold_to_stretch_button.pressed
-            
-            -- finalize editing for all selected objects
-            for _, object in ipairs(selectedObjects) do
-                object:closeForEditing()
-                grab(object)  -- because we ungrabbed them during initialization of the operation
+                
+                -- determine which axis the user intends to scale along
+                local DETERMINATION_THRESHOLD = 0.2   -- once the wand is moved this distance along any axis after the stretch button is pressed, that axis is considered chosen
+                local axis = nil
+                local done = false
+                startLoc = Vecf(cursor:getPosition())
+                repeat
+                
+                    local endLoc = Vecf(cursor:getPosition())
+                    deltax, deltay, deltaz = getDeltas(startLoc, endLoc)
+                    if math.abs(deltax) > DETERMINATION_THRESHOLD then
+                        axis = 'x'
+                        done = true
+                    elseif math.abs(deltay) > DETERMINATION_THRESHOLD then
+                        axis = 'y'
+                        done = true
+                    elseif math.abs(deltaz) > DETERMINATION_THRESHOLD then
+                        axis = 'z'
+                        done = true
+                    end
+                    
+                    Actions.waitForRedraw()
+                    
+                until done or not hold_to_stretch_button.pressed
+                
+                if axis then    -- if the hold_to_stretch_button was released before axis determination was made, then axis will still be nil.
+                    
+                    print("Determined to stretch along the ", axis, " axis.")
+                    
+                    -- perform the operation while the button is held down
+                    repeat
+                        
+                        local endLoc = Vecf(cursor:getPosition())
+                        
+                        for _, object in ipairs(selectedObjects) do
+                            object.newDistFromCenter = (endLoc - object:getCenterInWorldCoords()):length()
+                            local newScale = 1.0 + (object.newDistFromCenter-object.initialDistFromCenter)/object.initialDistFromCenter  -- scaling is still based on the distance from the object's center in all 3 dimensions, even though changes only happen in 1 dimension. The dimension it happens along was determined by where the wand was moved first; after that movement in any direction changes the scaling. This way the controls seem responsive.
+                            object:stretch(newScale, axis)
+                        end
+                    
+                        Actions.waitForRedraw()   -- all other commands are put on hold until the stretch button is released (including changing selection, etc)
+                    
+                    until not hold_to_stretch_button.pressed
+                    
+                    -- finalize editing for all selected objects
+                    for _, object in ipairs(selectedObjects) do
+                        object:closeForEditing()
+                        grab(object)  -- because we ungrabbed them during initialization of the operation
+                    end
+                
+                end
+                
             end
             
         elseif click_to_duplicate_button.justPressed then

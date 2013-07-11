@@ -34,7 +34,7 @@ function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4
     
     if copy then
         cylinder:setCenter(arg:getCenterDisplacement())
-        RelativeTo.World:addChild(cylinder.attach_here)
+        World:addChild(cylinder.attach_here)
         return cylinder
         -- copy complete
     end
@@ -44,14 +44,14 @@ function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4
         Actions.waitForRedraw()
     until hold_to_draw_button.pressed
 
-    local startLoc = Vecf(wand.position)   -- the location the button was first pressed
+    local startLoc = cylinder:getCursorPositionInConstructionCoords()   -- the location the button was first pressed
     local centerPos = startLoc
     cylinder:setCenter(Vec(startLoc))
-    RelativeTo.World:addChild(cylinder.attach_here)
+    World:addChild(cylinder.attach_here)
     cylinder:openForEditing()
     
     repeat
-        local endLoc = Vecf(wand.position)
+        local endLoc = cylinder:getCursorPositionInConstructionCoords()
         centerPos = avgPosf_lock_y(startLoc, endLoc)
         local deltax, deltay, deltaz = getDeltas(startLoc, endLoc)
         cylinder:setCenter(Vec(centerPos))
@@ -70,11 +70,11 @@ function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4
 
     -- hold_to_draw_button was pressed the second time
 
-    startLoc = Vecf(wand.position)
+    startLoc = cylinder:getCursorPositionInConstructionCoords()
     
     -- centerPos persists as the coordinates of the center of the base of the cone
     repeat
-        local endLoc = Vecf(wand.position)
+        local endLoc = cylinder:getCursorPositionInConstructionCoords()
         local deltay = endLoc:y()-startLoc:y()
         if (math.abs(deltay) > 0.05) then
             cylinder.osgcylinder:setHeight(math.abs(deltay))
@@ -118,7 +118,7 @@ function Cylinder_contains(cylinder, vec)
 end
 
 function Cylinder_removeObject(cylinder)
-    RelativeTo.World:removeChild(cylinder.attach_here)
+    World:removeChild(cylinder.attach_here)
 end
     
 -- debugging
