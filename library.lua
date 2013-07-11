@@ -86,12 +86,12 @@ menu = {shapeMenu, colorMenu}
 -- set up position to draw menus
 cmxform = Transform{
 	position={0,0.43,0},
-	--orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
+	orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
 }
 	
 smxform = Transform{
 	position={0,1.07,0},
-	--orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
+	orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
 }
 
 -- makes the menus always display in screen coordinates
@@ -100,13 +100,14 @@ xform1:setAutoRotateMode(1)
 xform1:setAutoScaleToScreen(0)
 xform1:setPosition(Vec(-0.5, 1.75, -2.0))
 
+smxform:addChild(smimage1)
+transpSM = myTransparentGroup({smxform, alpha = 1.0})
+xform1:addChild(transpSM)
+
 cmxform:addChild(cmimage1)
 transpCM = myTransparentGroup({cmxform, alpha = 0.5})
 xform1:addChild(transpCM)
 
-smxform:addChild(smimage1)
-transpSM = myTransparentGroup({smxform, alpha = 1.0})
-xform1:addChild(transpSM)
 
 -- initialize to 1 and 1 automatically
 colorIndex = 1
@@ -114,7 +115,9 @@ shapeIndex = 1
 
 function libraryCalled()
 	RelativeTo.Room:addChild(xform1)
+	
 	activeMenu = 1
+
 	libraryJustCalled = true
     while true do
         if open_library_button.justPressed and not libraryJustCalled then
@@ -122,12 +125,13 @@ function libraryCalled()
         elseif library_switch_up_button.justPressed or library_switch_down_button.justPressed then
             if activeMenu == 2 then
                 activeMenu = 1
-                changeTransparency(transpCM, 0.5)
-                changeTransparency(transpSM, 1.0)
+				changeTransparency(transpSM, 1.0)
+				changeTransparency(transpCM, 0.5)
             else
                 activeMenu = 2
-                changeTransparency(transpCM, 1.0)
                 changeTransparency(transpSM, 0.5)
+				changeTransparency(transpCM, 1.0) 
+
             end
         elseif library_scroll_left_button.justPressed then
             if activeMenu == 1 then 

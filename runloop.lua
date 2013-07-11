@@ -5,7 +5,7 @@ require "library"
 require "GeometryObjects.include_all"
 
 -- only for sim mode testing
-require "controls_sim_mode"
+--require "controls_sim_mode"
 
 objects = {}  -- list of all myObjects that have been created (numerically indexed)
 

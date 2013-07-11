@@ -17,6 +17,7 @@ require "myTransparentGroup"
         
         -- private members
         .transgroup  -- a myTransparentGroup
+		.wfgroup -- wireframe group
         .xform_track  -- an osg.MatrixTransform
         .xform_save  -- also an osg.MatrixTransform
         .frameaction  -- the handle to its FrameAction (see Actions.lua) if it is currently grabbed
