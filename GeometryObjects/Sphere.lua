@@ -20,7 +20,7 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
     
     sphere.setRadius = Sphere_setRadius
     sphere.getRadius = Sphere_getRadius
-    sphere.contains = Sphere_contains
+    --sphere.contains = Sphere_contains
     
     if copy then
         for i = 1, #arg.vertexArray.Item do
@@ -159,8 +159,11 @@ Sphere_getRadius = function(sphere)
     return sphere.vertexArray.Item[50]:x()   -- Vertex 50 is at 360 degrees, directly in the positive x-direction
 end
 
+-- strictly correct implementation of contains for Sphere; only works correctly if no slicing or 1-D stretching has occurred
+--[[
 function Sphere_contains(sphere, vec)
     local vecInLocalCoords = sphere:getWorldToLocalCoords():preMult(vec)
     local distFromCenter = vecInLocalCoords:length()
     if distFromCenter > sphere:getRadius() then return false else return true end
 end
+]]--

@@ -20,7 +20,7 @@ function Box(arg)  -- both constructors in one function. Pass either a Vec4f col
     
     box.setHalfLengths = Box_setHalfLengths
     box.getHalfLengths = Box_getHalfLengths
-    box.contains = Box_contains
+    --box.contains = Box_contains
     
     if copy then
         for i = 1, #arg.vertexArray.Item do
@@ -45,12 +45,12 @@ function Box(arg)  -- both constructors in one function. Pass either a Vec4f col
     local sides = osg.DrawElementsUShort(gldef.GL_QUADS, 0)  -- the right and left sides in that order
     sides.Item:insert( osgLua.GLushort(0) )
     sides.Item:insert( osgLua.GLushort(2) )
-    sides.Item:insert( osgLua.GLushort(6) )
     sides.Item:insert( osgLua.GLushort(4) )
+    sides.Item:insert( osgLua.GLushort(6) )
     sides.Item:insert( osgLua.GLushort(1) )
     sides.Item:insert( osgLua.GLushort(3) )
-    sides.Item:insert( osgLua.GLushort(7) )
     sides.Item:insert( osgLua.GLushort(5) )
+    sides.Item:insert( osgLua.GLushort(7) )
 
     box.geometry:setVertexArray(box.vertexArray)
     box.geometry:addPrimitiveSet(faceStrip)
@@ -111,6 +111,8 @@ Box_getHalfLengths = function()
     return box.vertexArray.Item[1]:x(), box.vertexArray.Item[1]:y(), box.vertexArray.Item[1]:z()
 end
 
+-- strictly correct implementation of contains for Box; only works correctly if no slicing or 1-D stretching has occurred
+--[[
 function Box_contains(box, vec)
     local vecInLocalCoords = box:getWorldToLocalCoords():preMult(vec)
     local halfLengthX, halfLengthY, halfLengthZ = box:getHalfLengths()
@@ -121,3 +123,4 @@ function Box_contains(box, vec)
     else return true
     end
 end
+]]--

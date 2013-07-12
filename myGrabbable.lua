@@ -1,5 +1,6 @@
 require "controls"
 require "myTransparentGroup"
+require "cursor"
 
 --[[
     class myGrabbable = {}
@@ -40,7 +41,7 @@ function myGrabbable(someNode)
     end
     
     grabbable.makeTransparent = function()
-        changeTransparency(grabbable.transgroup, 0.2)
+        changeTransparency(grabbable.transgroup, 0.5)
     end
     
     grabbable.makeSemiTransparent = function()
@@ -59,11 +60,14 @@ end
 function grab(grabbable)   -- this function (and ungrab) are safe to call regardless of whether the object is currently grabbed or not.
     if not grabbable.grabbed then
         grabbable.grabbed = true
-        grabbable.xform_save:preMult(osg.Matrixd.inverse(wand.matrix))   -- prevent new item from "jumping" by compensating for current position of cursor
+        grabbable.xform_save:preMult(osg.Matrixd.inverse(cursor:getWandMatrix()))   -- prevent new item from "jumping" by compensating for current position of cursor
         grabbable:makeTransparent()
         grabbable.frameaction = Actions.addFrameAction(function() 
             while true do
-                grabbable.xform_track:setMatrix(wand.matrix)
+                grabbable.xform_track:setMatrix(cursor:getWandMatrix())
+                --print("Applying this trans to grabbable.xform_track: ", cursor:getWandMatrix():getTrans())
+                print("Global cursor position is: ", cursor:getPosition())
+                print("Global center of the object is: ", grabbable:getCenterInWorldCoords())
                 Actions.waitForRedraw()
             end
         end)
@@ -75,7 +79,7 @@ function ungrab(grabbable)
         grabbable.grabbed = false
         Actions.removeFrameAction(grabbable.frameaction)
         grabbable:makeUnTransparent()
-        grabbable.xform_save:preMult(wand.matrix)   -- save current position by updating the xform_save transform
+        grabbable.xform_save:preMult(cursor:getWandMatrix())   -- save current position by updating the xform_save transform
         grabbable.xform_track:setMatrix(osg.Matrixd.identity())   -- what was formerly xform_save * xform_track is now stored in xform_save; xform_track is now identity
     end
 end

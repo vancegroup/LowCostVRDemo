@@ -24,7 +24,7 @@ function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4
     cylinder.getRadius = Cylinder_getRadius
     cylinder.setHeight = Cylinder_setHeight
     cylinder.getHeight = Cylinder_getHeight
-    cylinder.contains = Cylinder_contains
+    --cylinder.contains = Cylinder_contains
     
     if copy then
         for i = 1, #arg.vertexArray.Item do
@@ -165,7 +165,9 @@ end
 Cylinder_getHeight = function(cylinder)
     return 2*cylinder.vertexArray.Item[1]:y()
 end
-    
+
+-- strictly correct implementation of contains for Cylinder; only works correctly if no slicing or 1-D stretching has occurred
+--[[    
 function Cylinder_contains(cylinder, vec)
     local vecInLocalCoords = cylinder:getWorldToLocalCoords():preMult(vec)
     if math.abs(vecInLocalCoords:y()) > cylinder:getHeight()/2.0 then
@@ -178,3 +180,4 @@ function Cylinder_contains(cylinder, vec)
         return true
     end
 end
+]]--

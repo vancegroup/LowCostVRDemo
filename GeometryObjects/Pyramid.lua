@@ -25,7 +25,7 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
     pyramid.getBaseHalfLengths = Pyramid_getBaseHalfLengths
     pyramid.setHeight = Pyramid_setHeight
     pyramid.getHeight = Pyramid_getHeight
-    pyramid.contains = Pyramid_contains
+    --pyramid.contains = Pyramid_contains
     pyramid.getHalfLengthsAtPercentHeight = Pyramid_getHalfLengthsAtPercentHeight
     
     if copy then
@@ -144,7 +144,9 @@ end
 Pyramid_getHeight = function(pyramid)
     return pyramid.vertexArray.Item[5]:y()
 end
-    
+
+-- strictly correct implementation of contains for Pyramid; only works correctly if no slicing or 1-D stretching has occurred
+--[[    
 function Pyramid_contains(pyramid, vec)
     local vecInLocalCoords = pyramid:getWorldToLocalCoords():preMult(vec)
     local percentHeight = vecInLocalCoords:y() / pyramid:getHeight()
@@ -159,6 +161,7 @@ function Pyramid_contains(pyramid, vec)
         end
     end
 end
+]]--
     
 function Pyramid_getHalfLengthsAtPercentHeight(pyramid, percent)
     local halfLengthX, halfLengthZ = pyramid:getBaseHalfLengths()

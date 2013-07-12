@@ -5,13 +5,11 @@ require "library"
 require "GeometryObjects.include_all"
 
 -- only for sim mode testing
---require "controls_sim_mode"
+require "controls_sim_mode"
 
 objects = {}  -- list of all myObjects that have been created (numerically indexed)
 
 function runloop()
-    cursor = Cursor()  -- initialize the cursor, globally accessible
-    
     while true do
         
         for _, o in ipairs(objects) do
@@ -165,8 +163,6 @@ function runloop()
                 until done or not hold_to_stretch_button.pressed
                 
                 if axis then    -- if the hold_to_stretch_button was released before axis determination was made, then axis will still be nil.
-                    
-                    print("Determined to stretch along the ", axis, " axis.")
                     
                     -- perform the operation while the button is held down
                     repeat

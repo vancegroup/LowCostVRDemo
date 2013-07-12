@@ -44,6 +44,7 @@ function GeometryObject()
 
     geomObject.closeForEditing = function() 
         geomObject.geometry:setUseDisplayList(true)    -- done modifying object, doesn't need to be re-rendered every frame
+        geomObject.geometry:dirtyBound()   -- force a recalculation of the osg::BoundingBox the next time it is requested
     end
     
     geomObject.initializeScaling = function()
@@ -60,7 +61,6 @@ function GeometryObject()
     end
     
     geomObject.stretch = function(_, newScale, axis)
-        print("Stretching to ", newScale)
         if axis == 'x' then
             for i = 1, #geomObject.vertexArray.Item do
                 geomObject.vertexArray.Item[i] = Vecf(geomObject.initialVertexArray.Item[i]:x()*newScale, geomObject.initialVertexArray.Item[i]:y(), geomObject.initialVertexArray.Item[i]:z())
@@ -84,6 +84,13 @@ function GeometryObject()
     
     geomObject.removeObject = function()
         World:removeChild(geomObject.attach_here)
+    end
+    
+    -- generic implementation of collisions for arbitrary GeometryObjects. Uses osg::BoundingBox(d/f) in the local coordinate system. Not as accurate as it could be, but pretty simple to put together.
+    geomObject.contains = function(_, vec)
+        local vecInLocalCoords = geomObject:getWorldToLocalCoords():preMult(vec)
+        local boundingBox = geode:getBoundingBox()
+        return boundingBox:contains(vecInLocalCoords)
     end
     
     return geomObject
