@@ -114,7 +114,6 @@ shapeIndex = 1
 
 function libraryCalled()
 	RelativeTo.Room:addChild(xform1)
-	print("added to room")
 	activeMenu = 1
 
 	libraryJustCalled = true

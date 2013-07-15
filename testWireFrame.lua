@@ -11,14 +11,15 @@ function makeShape(color)
 	return xform
 end
 xform = makeShape(osg.Vec4f(1.0, 0.4, 0.7, 1.0))
---[[
+
 local GraphicsNode = osgFX.Scribe()
 GraphicsNode:setWireframeLineWidth(5.0)
 GraphicsNode:addChild(xform)
-local GraphicsSwitch = osg.Switch()
-GraphicsSwitch:addChild(GraphicsNode)
-RelativeTo.World:addChild(GraphicsSwitch)
-]]
+--local GraphicsSwitch = osg.Switch()
+--GraphicsSwitch:addChild(GraphicsNode)
+--RelativeTo.World:addChild(GraphicsSwitch)
+RelativeTo.World:addChild(GraphicsNode)
+
 --[[
 mystate = xform:getOrCreateStateSet()
 wireframeMode = osg.PolygonMode()
