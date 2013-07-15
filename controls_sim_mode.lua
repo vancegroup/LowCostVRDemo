@@ -6,10 +6,10 @@ notAvailable = {pressed = false; justPressed = false; justReleased = false; just
 wand = device
 open_library_button = button1
 hold_to_draw_button = button2
-hold_to_stretch_button = button2
+hold_to_stretch_button = notAvailable
 hold_to_scale_button = notAvailable
 hold_to_slice_button = notAvailable
-hold_to_zoom_in_button = notAvailable
+hold_to_zoom_in_button = button2
 hold_to_zoom_out_button = notAvailable
 hold_to_adjust_view_button = button1
 click_to_select_button = button0

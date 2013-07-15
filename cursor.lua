@@ -37,14 +37,12 @@ permxform:addChild(geode)
 cursor.defaultAppearance = permxform
 
 cursor.getPosition = function()
-    return Vecf(xform:getWorldMatrices(RelativeTo.World).Item[1]:preMult(Vec(0,0,0)))
+    return Vecf(geode:getWorldMatrices(RelativeTo.World).Item[1]:preMult(Vec(0,0,0)))
 end
 
 cursor.getWandMatrix = function()
-    --print("Trans of wand.matrix is ", wand.matrix:getTrans())
     local wandMatrix = wand.matrix
     wandMatrix:postMult(osg.Matrixd.scale(cursor.sensitivity))
-    --print("After scaling, new trans is ", wandMatrix:getTrans())
     return wandMatrix
 end
 

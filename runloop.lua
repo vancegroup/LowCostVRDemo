@@ -28,6 +28,7 @@ function runloop()
                 o:deselect()  -- deselect all other objects when creating a new one. Assuming this is desired behavior.
             end
             
+            stopViewloop()   -- This way you can't adjust view while menu is open. Also the controls overlap.
             shape, color = libraryCalled()
             
             if shape == nil then
@@ -49,6 +50,8 @@ function runloop()
                 end
                 
             end
+            
+            startViewloop()   -- re-enable view controls
         
         elseif click_to_select_button.justPressed then 
             

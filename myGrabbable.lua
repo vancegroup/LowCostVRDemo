@@ -34,7 +34,7 @@ function myGrabbable(someNode)
     grabbable.attach_here = grabbable.xform_save   -- the outermost node. See above outline for a good description of this field.
     
     grabbable.getLocalToWorldCoords = function()
-        return grabbable.transgroup:getWorldMatrices(RelativeTo.World).Item[1]
+        return someNode:getWorldMatrices(RelativeTo.World).Item[1]
     end
     grabbable.getWorldToLocalCoords = function()
         return osg.Matrixd.inverse(grabbable.getLocalToWorldCoords())
