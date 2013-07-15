@@ -1,16 +1,16 @@
 require "makeDigitalInterface"
 
-device = gadget.PositionInterface('VJWand')
-button0 = gadget.DigitalInterface('VJButton0')
-button1 = gadget.DigitalInterface('VJButton1')
-button2 = gadget.DigitalInterface('VJButton2')
-button3 = gadget.DigitalInterface('VJButton3')
-button4 = gadget.DigitalInterface('VJButton4')
-trigger_analog = gadget.AnalogInterface('Trigger')
-bumper = gadget.DigitalInterface('Bumper')
-stickclick = gadget.DigitalInterface('StickButton')
-analogstickX = gadget.AnalogInterface('StickX')
-analogstickY = gadget.AnalogInterface('StickY')
+local device = gadget.PositionInterface('VJWand')
+local button0 = gadget.DigitalInterface('VJButton0')
+local button1 = gadget.DigitalInterface('VJButton1')
+local button2 = gadget.DigitalInterface('VJButton2')
+local button3 = gadget.DigitalInterface('VJButton3')
+local button4 = gadget.DigitalInterface('VJButton4')
+local trigger_analog = gadget.AnalogInterface('Trigger')
+local bumper = gadget.DigitalInterface('Bumper')
+local stickclick = gadget.DigitalInterface('StickButton')
+local analogstickX = gadget.AnalogInterface('StickX')
+local analogstickY = gadget.AnalogInterface('StickY')
 
 makeDigitalInterface(trigger_analog, "trigger", 1)
 makeDigitalInterface(analogstickX, "stickXLeft", 0)
@@ -25,7 +25,6 @@ open_library_button = button1
 hold_to_draw_button = trigger
 hold_to_stretch_button = bumper
 hold_to_scale_button = trigger
-hold_to_slice_button = button3
 hold_to_zoom_in_button = stickYUp
 hold_to_zoom_out_button = stickYDown
 hold_to_adjust_view_button = button0

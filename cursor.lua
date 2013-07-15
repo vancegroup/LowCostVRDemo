@@ -46,12 +46,14 @@ cursor.getWandMatrix = function()
     return wandMatrix
 end
 
-cursor:changeAppearance(cursor.defaultAppearance)
-World:addChild(xform)
-Actions.addFrameAction(function()
-    local wandMatrix
-    while true do
-        xform:setMatrix(cursor:getWandMatrix())
-        Actions.waitForRedraw()
-    end
-end)
+function enableCursor()
+    cursor:changeAppearance(cursor.defaultAppearance)
+    World:addChild(xform)
+    Actions.addFrameAction(function()
+        local wandMatrix
+        while true do
+            xform:setMatrix(cursor:getWandMatrix())
+            Actions.waitForRedraw()
+        end
+    end)
+end

@@ -1,15 +1,17 @@
 require "controls"
+require "myGrabbable"
+require "runloop"   -- pauseSelection() etc
 
 osgnav.removeStandardNavigation()
 
-local loop;
+local viewloopPaused = false
 
-function startViewloop()
-    loop = Actions.addFrameAction(viewloop)
+function pauseViewloop()
+    viewloopPaused = true
 end
 
-function stopViewloop()
-    if loop then Actions.removeFrameAction(loop) end
+function resumeViewloop()
+    viewloopPaused = false
 end
 
 function viewloop()
@@ -18,23 +20,30 @@ function viewloop()
         if hold_to_zoom_in_button.justPressed then
             repeat
                 RelativeTo.World:postMult(osg.Matrixd.translate(0,0,-0.2))
-                Actions.waitForRedraw()
+                viewloop_waitForRedraw()
             until not hold_to_zoom_in_button.pressed
         elseif hold_to_zoom_out_button.justPressed then
             repeat
                 RelativeTo.World:postMult(osg.Matrixd.translate(0,0,0.2))
-                Actions.waitForRedraw()
+                viewloop_waitForRedraw()
             until not hold_to_zoom_out_button.pressed
+        elseif hold_to_adjust_view_button.justPressed then
+            pauseSelection()
+            grab(WorldGrabbable)
+            repeat
+                viewloop_waitForRedraw()
+            until not hold_to_adjust_view_button.pressed
+            ungrab(WorldGrabbable)
+            resumeSelection()
         end
         
-        Actions.waitForRedraw()
+        viewloop_waitForRedraw()
     
     end
 end
 
-Actions.addFrameAction(function()
-    while true do
-        print(RelativeTo.World.Matrix:getTrans())
+function viewloop_waitForRedraw()
+    repeat
         Actions.waitForRedraw()
-    end
-end)
+    until not viewloopPaused   -- this loop structure guarantees at least one call to Actions.waitForRedraw()
+end

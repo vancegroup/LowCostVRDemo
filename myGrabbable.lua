@@ -1,4 +1,3 @@
-require "controls"
 require "myTransparentGroup"
 require "cursor"
 
@@ -65,9 +64,11 @@ function grab(grabbable)   -- this function (and ungrab) are safe to call regard
         grabbable.frameaction = Actions.addFrameAction(function() 
             while true do
                 grabbable.xform_track:setMatrix(cursor:getWandMatrix())
-                --print("Applying this trans to grabbable.xform_track: ", cursor:getWandMatrix():getTrans())
-                print("Global cursor position is: ", cursor:getPosition())
-                print("Global center of the object is: ", grabbable:getCenterInWorldCoords())
+                if grabbable.geometry then
+                    --print("Applying this trans to grabbable.xform_track: ", cursor:getWandMatrix():getTrans())
+                    --print("Global cursor position is: ", cursor:getPosition())
+                    --print("Global center of the object is: ", grabbable:getCenterInWorldCoords())
+                end
                 Actions.waitForRedraw()
             end
         end)

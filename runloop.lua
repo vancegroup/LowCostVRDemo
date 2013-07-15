@@ -7,9 +7,27 @@ require "GeometryObjects.include_all"
 -- only for sim mode testing
 require "controls_sim_mode"
 
-objects = {}  -- list of all myObjects that have been created (numerically indexed)
+local objects = {}  -- list of all myObjects that have been created (numerically indexed)
+
+local selectionPaused = false
+
+function pauseSelection()   -- temporarily deselects all objects, but remembers which were selected so the state can be restored
+    selectionPaused = true      
+end
+
+function resumeSelection()
+    selectionPaused = false
+end
 
 function runloop()
+    
+    enableCursor()
+    
+    -- start a separate FrameAction for view controls - that way you can always adjust the view while doing any other task here
+    require "viewloop"
+    Actions.addFrameAction(viewloop)
+    
+    -- the main runloop
     while true do
         
         for _, o in ipairs(objects) do
@@ -28,12 +46,10 @@ function runloop()
                 o:deselect()  -- deselect all other objects when creating a new one. Assuming this is desired behavior.
             end
             
-            stopViewloop()   -- This way you can't adjust view while menu is open. Also the controls overlap.
+            pauseViewloop()   -- This way you can't adjust view while menu is open. Also the controls overlap.
             shape, color = libraryCalled()
             
-            if shape == nil then
-                print("Menu was closed without selecting anything.")
-            else
+            if shape ~= nil then   -- shape will be nil if the menu is closed without selecting anything
             
                 if string.find(shape, "cube") then
                     table.insert(objects, Box(color))
@@ -51,7 +67,7 @@ function runloop()
                 
             end
             
-            startViewloop()   -- re-enable view controls
+            resumeViewloop()   -- re-enable view controls
         
         elseif click_to_select_button.justPressed then 
             
@@ -102,7 +118,7 @@ function runloop()
                     object:scale(newScale)
                 end
             
-                Actions.waitForRedraw()   -- all other commands are put on hold until the scale button is released (including changing selection, etc)
+                runloop_waitForRedraw()   -- all other commands are put on hold until the scale button is released (including changing selection, etc)
             
             until not hold_to_scale_button.pressed
             
@@ -161,7 +177,7 @@ function runloop()
                         done = true
                     end
                     
-                    Actions.waitForRedraw()
+                    runloop_waitForRedraw()
                     
                 until done or not hold_to_stretch_button.pressed
                 
@@ -178,7 +194,7 @@ function runloop()
                             object:stretch(newScale, axis)
                         end
                     
-                        Actions.waitForRedraw()   -- all other commands are put on hold until the stretch button is released (including changing selection, etc)
+                        runloop_waitForRedraw()   -- all other commands are put on hold until the stretch button is released (including changing selection, etc)
                     
                     until not hold_to_stretch_button.pressed
                     
@@ -231,7 +247,31 @@ function runloop()
         
         end
         
-        Actions.waitForRedraw()
+        runloop_waitForRedraw()
         
+    end
+end
+
+-- Because all waitForRedraw() commands inside runloop are routed through this function, allows capability to pause all action while remembering your place within runloop
+function runloop_waitForRedraw()
+    if selectionPaused then
+        local selection_on_pause = {}
+        for _, object in ipairs(objects) do
+            if object.selected then table.insert(selection_on_pause, object) end
+        end
+        
+        for _, object in ipairs(selection_on_pause) do
+            object:deselect()
+        end
+        
+        repeat
+            Actions.waitForRedraw()
+        until not selectionPaused
+        
+        for _, object in ipairs(selection_on_pause) do
+            object:select()
+        end
+    else
+        Actions.waitForRedraw()
     end
 end
