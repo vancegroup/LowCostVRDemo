@@ -19,12 +19,14 @@ function viewloop()
     
         if hold_to_zoom_in_button.justPressed then
             repeat
-                RelativeTo.World:postMult(osg.Matrixd.translate(0,0,-0.2))
+                print("zooming in")
+                RelativeTo.World:postMult(osg.Matrixd.translate(0,0,0.2))
                 viewloop_waitForRedraw()
             until not hold_to_zoom_in_button.pressed
         elseif hold_to_zoom_out_button.justPressed then
             repeat
-                RelativeTo.World:postMult(osg.Matrixd.translate(0,0,0.2))
+                print("zooming out")
+                RelativeTo.World:postMult(osg.Matrixd.translate(0,0,-0.2))
                 viewloop_waitForRedraw()
             until not hold_to_zoom_out_button.pressed
         elseif hold_to_adjust_view_button.justPressed then
