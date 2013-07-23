@@ -2,22 +2,22 @@ require "makeDigitalInterfaceFromSpeech"
 
 local kinect_speech = gadget.StringInterface("KinectProxy")
 
-makeDigitalInterfaceFromSpeech(kinect_speech, "menu", say_menu, false)
-makeDigitalInterfaceFromSpeech(kinect_speech, "draw", say_draw, true)
-makeDigitalInterfaceFromSpeech(kinect_speech, "right", say_right, false)
-makeDigitalInterfaceFromSpeech(kinect_speech, "left", say_left, false)
-makeDigitalInterfaceFromSpeech(kinect_speech, "up", say_up, false)
-makeDigitalInterfaceFromSpeech(kinect_speech, "down", say_down, false)
-makeDigitalInterfaceFromSpeech(kinect_speech, "select", say_select, false)
-makeDigitalInterfaceFromSpeech(kinect_speech, "scale", say_scale, true)
-makeDigitalInterfaceFromSpeech(kinect_speech, "stretch", say_stretch, true)
-makeDigitalInterfaceFromSpeech(kinect_speech, "duplicate", say_duplicate, false)
-makeDigitalInterfaceFromSpeech(kinect_speech, "delete", say_delete, false)
-makeDigitalInterfaceFromSpeech(kinect_speech, "in", say_in, true)
-makeDigitalInterfaceFromSpeech(kinect_speech, "out", say_out, true)
-makeDigitalInterfaceFromSpeech(kinect_speech, "view", say_view, true)
+makeDigitalInterfaceFromSpeech(kinect_speech, "menu", "say_menu", false)
+makeDigitalInterfaceFromSpeech(kinect_speech, "draw", "say_draw", true)
+makeDigitalInterfaceFromSpeech(kinect_speech, "right", "say_right", false)
+makeDigitalInterfaceFromSpeech(kinect_speech, "left", "say_left", false)
+makeDigitalInterfaceFromSpeech(kinect_speech, "up", "say_up", false)
+makeDigitalInterfaceFromSpeech(kinect_speech, "down", "say_down", false)
+makeDigitalInterfaceFromSpeech(kinect_speech, "select", "say_select", false)
+makeDigitalInterfaceFromSpeech(kinect_speech, "scale", "say_scale", true)
+makeDigitalInterfaceFromSpeech(kinect_speech, "stretch", "say_stretch", true)
+makeDigitalInterfaceFromSpeech(kinect_speech, "duplicate", "say_duplicate", false)
+makeDigitalInterfaceFromSpeech(kinect_speech, "delete", "say_delete", false)
+makeDigitalInterfaceFromSpeech(kinect_speech, "in", "say_in", true)
+makeDigitalInterfaceFromSpeech(kinect_speech, "out", "say_out", true)
+makeDigitalInterfaceFromSpeech(kinect_speech, "view", "say_view", true)
 
-wand = nil
+wand = gadget.PositionInterface("VJWand")
 open_library_button = say_menu
 hold_to_draw_button = say_draw
 hold_to_stretch_button = say_stretch
