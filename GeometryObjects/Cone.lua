@@ -20,11 +20,12 @@ function Cone(arg)  -- both constructors in one function. Pass either a Vec4f co
     
     cone = GeometryObject()
     
+    cone.type = "Cone"
     cone.setRadius = Cone_setRadius
     cone.getRadius = Cone_getRadius
     cone.setHeight = Cone_setHeight
     cone.getHeight = Cone_getHeight
-    cone.contains = Cone_contains
+    --cone.contains = Cone_contains
     
     if copy then
         for i = 1, #arg.vertexArray.Item do
@@ -57,6 +58,8 @@ function Cone(arg)  -- both constructors in one function. Pass either a Vec4f co
     
     if copy then
         cone:setCenter(arg:getCenterDisplacement())
+        cone.xform_track:setMatrix(arg.xform_track.Matrix)
+        cone.xform_save:setMatrix(arg.xform_save.Matrix)
         World:addChild(cone.attach_here)
         return cone
         -- copy complete
@@ -136,7 +139,9 @@ end
 Cone_getHeight = function(cone)
     return cone.vertexArray.Item[101]:y()   -- y-coord of the peak
 end
-    
+
+-- strictly correct implementation of contains for Cone; only works correctly if no slicing or 1-D stretching has occurred
+--[[    
 function Cone_contains(cone, vec)
     local vecInLocalCoords = cone:getWorldToLocalCoords():preMult(vec)
     if vecInLocalCoords:y() > cone:getHeight() or vecInLocalCoords:y() < 0 then
@@ -150,3 +155,4 @@ function Cone_contains(cone, vec)
         return true
     end
 end
+]]--

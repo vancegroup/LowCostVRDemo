@@ -21,10 +21,10 @@ require "myGrabbable"
         Protected members:
         void :setCenter(Vec3d)  -- for moving the object's center without moving its local center. Using this function is necessary so that the object rotates around its local center and to prevent other undesirable effects
         void :getCenterDisplacement()   -- for getting the displacement that was set using :setCenter()
+        Vec3f :getCursorPositionInConstructionCoords()   -- for use only during the object's construction
         
         Private members:
         .xform  -- a PositionAttitudeTransform, which is responsible for moving the object's center (other than movement due to being grabbed, which is handled by the myGrabbable underlying the myObject) such that its local center can remain at local (0,0,0)
-        Vec3f :getCursorPositionInConstructionCoords()   -- for use only during the object's construction
 ]]--
 
 function myObject(grabbable)
@@ -92,8 +92,3 @@ function x_prod(vec1, vec2)
     return Vecf( vec1:y()*vec2:z() - vec1:z()*vec2:y(), vec1:z()*vec2:x() - vec1:x()*vec2:z(), vec1:x()*vec2:y() - vec1:y()*vec2:x() )
 end
 ]]--
-
--- debugging
-function printVec(vec)
-    print("x = ", vec:x(), "; y = ", vec:y(), "; z = ", vec:z())
-end

@@ -13,8 +13,6 @@ function makeDigitalInterface(analog, name, dir)
                 _G[name].justChanged = true
                 _G[name].pressed = false
                 Actions.waitForRedraw()
-                -- during this frame the just* will be true for everyone else
-                Actions.waitForRedraw()
                 
                 -- released but not just released (since last frame)
                 _G[name].justReleased = false
