@@ -5,7 +5,7 @@ require "library"
 require "GeometryObjects.include_all"
 
 -- only for sim mode testing
-require "controls_sim_mode"
+--require "controls_sim_mode"
 
 local objects = {}  -- list of all myObjects that have been created (numerically indexed)
 
@@ -22,6 +22,13 @@ end
 function runloop()
     
     enableCursor()
+    
+    Actions.addFrameAction(function()
+        while true do
+            print("cursor:getWandMatrix() is", cursor:getWandMatrix():getTrans())
+            Actions.waitForRedraw()
+        end
+    end)
     
     -- start a separate FrameAction for view controls - that way you can always adjust the view while doing any other task here
     require "viewloop"

@@ -7,8 +7,10 @@ if not string.find(package.path, scriptFolder) then package.path = scriptFolder 
 
 --dofile(scriptFolder .. "/help.lua")
 
+MASTER_OFFSET_VEC = {0, 0, -10}
+
 require "myGrabbable"
-local master_xform = Transform{ position = {0, 0, -15}  }   -- make everything happen "farther back" in the scene
+local master_xform = Transform{ position = MASTER_OFFSET_VEC }   -- make everything happen "farther back" in the scene
 WorldGrabbable = myGrabbable(master_xform)
 RelativeTo.World:addChild(WorldGrabbable.attach_here)
 World = master_xform    -- code in this application should use this World and not RelativeTo.World

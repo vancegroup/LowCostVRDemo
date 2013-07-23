@@ -8,7 +8,7 @@ local button2 = gadget.DigitalInterface('VJButton2')
 --local button3 = gadget.DigitalInterface('VJButton3')
 --local button4 = gadget.DigitalInterface('VJButton4')
 --local button5 = gadget.DigitalInterface('VJButton5')
-local notAvailable = {pressed = false; justPressed = false; justReleased = false; justChanged = false}
+local notAvailable = {["pressed"] = false; ["justPressed"] = false; ["justReleased"] = false; ["justChanged"] = false}
 
 wand = device
 open_library_button = button1
