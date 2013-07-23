@@ -8,6 +8,7 @@ require "myObject"
         
         New public members:
         :stretch(newScale, axis)   -- Stretch the GeometryObject in one dimension while leaving the other two alone. Use the same :initializeScaling() as for :scale(). The second parameter should be one of 'x', 'y', or 'z' to indicate which axis to stretch along.
+        abstract string .type   -- the type of GeometryObject ("Box", "Cone", "Cylinder", "Pyramid", or "Sphere")
         
         Protected members:
         .geometry  -- the osg::Geometry underlying the GeometryObject

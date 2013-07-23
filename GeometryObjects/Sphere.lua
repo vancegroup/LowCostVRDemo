@@ -18,6 +18,7 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
     
     sphere = GeometryObject()
     
+    sphere.type = "Sphere"
     sphere.setRadius = Sphere_setRadius
     sphere.getRadius = Sphere_getRadius
     --sphere.contains = Sphere_contains
@@ -94,7 +95,9 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
     
     if copy then
         sphere:setCenter(arg:getCenterDisplacement())
-        World:addChild(sphere.attach_here)
+        sphere.xform_track:setMatrix(arg.xform_track.Matrix)
+        sphere.xform_save:setMatrix(arg.xform_save.Matrix)
+        World:addChild(sphere.attach_here)        
         return sphere
         -- copy complete
     end

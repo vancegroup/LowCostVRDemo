@@ -18,6 +18,7 @@ function Box(arg)  -- both constructors in one function. Pass either a Vec4f col
     
     box = GeometryObject()
     
+    box.type = "Box"
     box.setHalfLengths = Box_setHalfLengths
     box.getHalfLengths = Box_getHalfLengths
     --box.contains = Box_contains
@@ -60,6 +61,8 @@ function Box(arg)  -- both constructors in one function. Pass either a Vec4f col
     
     if copy then
         box:setCenter(arg:getCenterDisplacement())
+        box.xform_track:setMatrix(arg.xform_track.Matrix)
+        box.xform_save:setMatrix(arg.xform_save.Matrix)
         World:addChild(box.attach_here)
         return box
         -- copy complete

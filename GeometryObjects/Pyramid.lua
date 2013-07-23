@@ -21,6 +21,7 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
     
     pyramid = GeometryObject()
     
+    pyramid.type = "Pyramid"
     pyramid.setBaseHalfLengths = Pyramid_setBaseHalfLengths
     pyramid.getBaseHalfLengths = Pyramid_getBaseHalfLengths
     pyramid.setHeight = Pyramid_setHeight
@@ -65,6 +66,8 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
     
     if copy then
         pyramid:setCenter(arg:getCenterDisplacement())
+        pyramid.xform_track:setMatrix(arg.xform_track.Matrix)
+        pyramid.xform_save:setMatrix(arg.xform_save.Matrix)
         World:addChild(pyramid.attach_here)
         return pyramid
         -- copy complete

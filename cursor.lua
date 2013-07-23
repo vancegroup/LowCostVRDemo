@@ -7,23 +7,20 @@ require "controls"  -- wand
         
         Vec3f :getPosition()
         Matrixd :getWandMatrix()   -- returns the current wand.matrix adjusted for the set cursor sensitivity
-        void :changeAppearance(node)   -- pass any node (i.e. Transform, Geode) and it will be rendered as the new cursor image
+        void :changeAppearance(node)   -- pass any node (i.e. Transform, Geode) and it (with all its children, of course) will be rendered as the new cursor image
         
-        .sensitivity  -- Vec3d, the sensitivity factor (along each axis). Higher numbers make smaller wand movements move the cursor farther on-screen. Negative numbers will invert the wand, so don't use them.
-        .defaultAppearance   -- a node to pass to :changeAppearance that contains the default appearance parameters
+        .defaultAppearance   -- a node to pass to :changeAppearance to restore the default appearance
         -- alternate appearances to be added in the future
 
         Private members:
         .xform - the osg.MatrixTransform used for tracking
 ]]--
 
-local CURSOR_SENSITIVITY = 3   -- the value to initialize cursor.sensitivity to
+local CURSOR_SENSITIVITY = 3   -- Higher numbers make smaller wand movements move the cursor farther on-screen. Negative numbers will invert the wand, so don't use them.
 
 cursor = {}
 
 cursor.xform = osg.MatrixTransform(wand.matrix)
-
-cursor.sensitivity = Vec(CURSOR_SENSITIVITY, CURSOR_SENSITIVITY, CURSOR_SENSITIVITY)
 
 cursor.changeAppearance = function(cursor, geode)
     cursor.xform:removeChildren(0, cursor.xform:getNumChildren())
@@ -40,12 +37,12 @@ permxform:addChild(geode)
 cursor.defaultAppearance = permxform
 
 cursor.getPosition = function()
-    return Vecf(geode:getWorldMatrices(RelativeTo.World).Item[1]:preMult(Vec(0,0,0)))
+    return Vecf(cursor.xform:getChild(0):getWorldMatrices(RelativeTo.World).Item[1]:preMult(Vec(0,0,0)))
 end
 
 cursor.getWandMatrix = function()
     local wandMatrix = wand.matrix
-    wandMatrix:postMult(osg.Matrixd.scale(cursor.sensitivity))
+    wandMatrix:setTrans(CURSOR_SENSITIVITY*wandMatrix:getTrans())
     return wandMatrix
 end
 
@@ -55,7 +52,6 @@ function enableCursor()
     RelativeTo.World:addChild(master_xform)   -- separate transform is used (not the World defined in main.lua) so that changing the view does not rotate the axes of the cursor. I.e. the cursor's axes never change, so moving the wand toward the screen always causes the cursor to move in the global -z direction.
     master_xform:addChild(cursor.xform)
     Actions.addFrameAction(function()
-        local wandMatrix
         while true do
             cursor.xform:setMatrix(cursor:getWandMatrix())
             Actions.waitForRedraw()

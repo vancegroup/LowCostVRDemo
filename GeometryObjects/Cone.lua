@@ -20,6 +20,7 @@ function Cone(arg)  -- both constructors in one function. Pass either a Vec4f co
     
     cone = GeometryObject()
     
+    cone.type = "Cone"
     cone.setRadius = Cone_setRadius
     cone.getRadius = Cone_getRadius
     cone.setHeight = Cone_setHeight
@@ -57,6 +58,8 @@ function Cone(arg)  -- both constructors in one function. Pass either a Vec4f co
     
     if copy then
         cone:setCenter(arg:getCenterDisplacement())
+        cone.xform_track:setMatrix(arg.xform_track.Matrix)
+        cone.xform_save:setMatrix(arg.xform_save.Matrix)
         World:addChild(cone.attach_here)
         return cone
         -- copy complete

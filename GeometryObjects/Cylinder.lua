@@ -20,6 +20,7 @@ function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4
     
     cylinder = GeometryObject()
     
+    cylinder.type = "Cylinder"
     cylinder.setRadius = Cylinder_setRadius
     cylinder.getRadius = Cylinder_getRadius
     cylinder.setHeight = Cylinder_setHeight
@@ -66,6 +67,8 @@ function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4
     
     if copy then
         cylinder:setCenter(arg:getCenterDisplacement())
+        cylinder.xform_track:setMatrix(arg.xform_track.Matrix)
+        cylinder.xform_save:setMatrix(arg.xform_save.Matrix)
         World:addChild(cylinder.attach_here)
         return cylinder
         -- copy complete

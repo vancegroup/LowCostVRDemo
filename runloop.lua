@@ -216,23 +216,41 @@ function runloop()
             end
             
             for _, object in ipairs(selectedObjects) do
-                local newObject = nil
-                if object.osgbox then
-                    newObject = Box(object)
-                elseif object.osgcone then
-                    newObject = Cone(object)
-                elseif object.osgcylinder then
-                    newObject = Cylinder(object)
-                elseif object.geometry then
-                    newObject = Pyramid(object)   -- assume all PrimitiveSet objects are pyramids, for now
-                elseif object.osgsphere then
-                    newObject = Sphere(object)
-                else 
-                    print("Error: unsupported object for duplicate")
-                end
-                table.insert(objects, newObject)
                 object:deselect()  -- deselect the old (parent) object
-                newObject:select()  -- select the new (copy) object
+                local newObject = nil
+                if object.geometry then   -- object is a GeometryObject
+                    if object.type == "Box" then
+                        newObject = Box(object)
+                    elseif object.type == "Cone" then
+                        newObject = Cone(object)
+                    elseif object.type == "Cylinder" then
+                        newObject = Cylinder(object)
+                    elseif object.type == "Pyramid" then
+                        newObject = Pyramid(object)
+                    elseif object.type == "Sphere" then
+                        newObject = Sphere(object)
+                    else
+                        print("Error: unsupported object for duplicate")
+                    end
+                else  -- object is a ShapeObject
+                    if object.osgbox then
+                        newObject = Box(object)
+                    elseif object.osgcone then
+                        newObject = Cone(object)
+                    elseif object.osgcylinder then
+                        newObject = Cylinder(object)
+                    elseif object.osgsphere then
+                        newObject = Sphere(object)
+                    else 
+                        print("Error: unsupported object for duplicate")
+                    end
+                end
+                if newObject then 
+                    table.insert(objects, newObject)
+                    newObject:select()  -- select the new (copy) object
+                else
+                    object:select()   -- reselect the parent object as if duplicate button was never pressed
+                end
             end
         
         elseif click_to_delete_button.justPressed then
