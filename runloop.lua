@@ -5,7 +5,7 @@ require "library"
 require "GeometryObjects.include_all"
 
 -- only for sim mode testing
---require "controls_sim_mode"
+require "controls_sim_mode"
 
 local objects = {}  -- list of all myObjects that have been created (numerically indexed)
 
@@ -23,12 +23,12 @@ function runloop()
     
     enableCursor()
     
-    Actions.addFrameAction(function()
+    --[[Actions.addFrameAction(function()
         while true do
             print("cursor:getWandMatrix() is", cursor:getWandMatrix():getTrans())
             Actions.waitForRedraw()
         end
-    end)
+    end)]]--
     
     -- start a separate FrameAction for view controls - that way you can always adjust the view while doing any other task here
     require "viewloop"
@@ -50,10 +50,10 @@ function runloop()
         if open_library_button.justPressed then
             
             for _, o in ipairs(objects) do
-                o:deselect()  -- deselect all other objects when creating a new one. Assuming this is desired behavior.
+                o:deselect()  -- deselect all other objects when creating a new one
             end
             
-            pauseViewloop()   -- This way you can't adjust view while menu is open. Also the controls overlap.
+            pauseViewloop()   -- This way you can't adjust view while menu is open.
             shape, color = libraryCalled()
             
             if shape ~= nil then   -- shape will be nil if the menu is closed without selecting anything
