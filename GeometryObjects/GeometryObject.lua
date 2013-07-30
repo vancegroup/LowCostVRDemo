@@ -94,19 +94,5 @@ function GeometryObject()
         return boundingBox:contains(vecInLocalCoords)
     end
     
-    --[[Actions.addFrameAction(function()
-        while true do
-            print("Object's center (world coords):", geomObject:getCenterInWorldCoords())
-            print("Rotation components are nonzero in:")
-            if not geomObject.xform_track.Matrix:getRotate():zeroRotation() then print("xform_track") end
-            if not geomObject.xform_save.Matrix:getRotate():zeroRotation() then print("xform_save") end
-            if not cursor.xform_calibration.Matrix:getRotate():zeroRotation() then print("xform_calibration") end
-            if not WorldGrabbable.xform_track.Matrix:getRotate():zeroRotation() then print("World's xform_track") end
-            if not WorldGrabbable.xform_save.Matrix:getRotate():zeroRotation() then print("World's xform_save") end
-            if not osg.MatrixTransform().Matrix:getRotate():zeroRotation() then print("don't trust any of the above rotation data") end
-            Actions.waitForRedraw()
-        end
-    end)]]--
-    
     return geomObject
 end

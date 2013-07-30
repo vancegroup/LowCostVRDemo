@@ -7,18 +7,21 @@ if not string.find(package.path, scriptFolder) then package.path = scriptFolder 
 
 --dofile(scriptFolder .. "/controls_test.lua")
 
-MASTER_OFFSET_VEC = {-4, 2, -10}
+MASTER_OFFSET_VEC = {-4, -2, -10}
 
 require "myGrabbable"
 local master_xform = Transform{ position = MASTER_OFFSET_VEC }   -- control the 'world origin' for the application. The cursor starts here.
-WorldGrabbable = myGrabbable(master_xform, true, true)
-RelativeTo.World:addChild(WorldGrabbable.attach_here)
+World_xform_track = osg.MatrixTransform()       -- this structure is based on the workings of myGrabbable, see notes there.
+World_xform_track:addChild(master_xform)        --
+World_xform_save = osg.MatrixTransform()        --
+World_xform_save:addChild(World_xform_track)    --
+RelativeTo.World:addChild(World_xform_save)     --
 World = master_xform    -- code in this application should use this World and not RelativeTo.World
 
 -- background (environment)
 bg_model = Model("examples/models/basicfactory.ive")    -- examples/models/basicfactory.ive is built in to VR JuggLua
 bg_model_orientation_xform = Transform{ position = {0, -100, 30},
-                                        orientation = AngleAxis(Degrees(-90), Axis{1.0, 0.0, 0.0}),
+                                        orientation = AngleAxis(Degrees(-100), Axis{1.0, 0.0, 0.0}),
                                         bg_model }
 World:addChild(bg_model_orientation_xform)
 
