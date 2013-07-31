@@ -23,13 +23,6 @@ function runloop()
     
     enableCursor()
     
-    --[[Actions.addFrameAction(function()
-        while true do
-            print("cursor:getWandMatrix() is", cursor:getWandMatrix():getTrans())
-            Actions.waitForRedraw()
-        end
-    end)]]--
-    
     -- start a separate FrameAction for view controls - that way you can always adjust the view while doing any other task here
     require "viewloop"
     Actions.addFrameAction(viewloop)

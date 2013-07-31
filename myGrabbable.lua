@@ -40,15 +40,7 @@ function myGrabbable(someNode)
     end
     
     grabbable.getCursorPoseInLocalCoords = function()
-        --print("\nrotation component of view:", grabbable.attach_here:getWorldMatrices().Item[1]:getRotate())
-        --print("rotation component of inverse:", osg.Matrixd.inverse(grabbable.attach_here:getWorldMatrices().Item[1]):getRotate())
-        --print("returning:")
-        local returnMe = cursor:getPose() * osg.Matrixd.inverse(grabbable.attach_here:getWorldMatrices().Item[1])    -- using the new * for matrix multiplication in JuggLua
-        returnMe:setRotate(osg.Quat())  -- no idea why zeroing the rotation makes it work. Without this line, the object moves the wrong direction when the view has been rotated
-        --print("rotate:", returnMe:getRotate())
-        --print("translate:", returnMe:getTrans())
-        --print("object center global:", grabbable:getCenterInWorldCoords())
-        return returnMe
+        return cursor:getPose() * osg.Matrixd.inverse(grabbable.xform_save:getWorldMatrices().Item[1])    -- using the new * for matrix multiplication in JuggLua
     end
     
     grabbable.makeTransparent = function()
