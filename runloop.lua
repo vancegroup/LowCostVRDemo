@@ -5,7 +5,7 @@ require "library"
 require "GeometryObjects.include_all"
 
 -- only for sim mode testing
-require "controls_sim_mode"
+--require "controls_sim_mode"
 
 local objects = {}  -- list of all myObjects that have been created (numerically indexed)
 
@@ -158,9 +158,6 @@ function runloop()
                     object:openForEditing()
                     startLoc = Vecf(cursor:getPosition())
                     object.initialDistFromCenter = (startLoc - object:getCenterInWorldCoords()):length()
-                    print("Cursor position reported as ", startLoc)
-                    print("Object center in world coords is ", object:getCenterInWorldCoords())
-                    print("initialDistFromCenter = ", object.initialDistFromCenter)
                     object:initializeScaling()
                 end
                 

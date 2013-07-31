@@ -15,6 +15,9 @@ require "gldef"
         float :getHeight()
 ]]--
 
+local MIN_CYLINDER_RADIUS = 0.01
+local MIN_CYLINDER_HEIGHT = 0.002
+
 function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4f color for interactive draw, or an existing Cylinder to copy
     copy = (type(arg) == "table")   -- copy will be true if an object to copy was passed, but false if a color was passed
     
@@ -32,8 +35,8 @@ function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4
             cylinder.vertexArray.Item[i] = Vecf(arg.vertexArray.Item[i])
         end
     else
-        cylinder.vertexArray.Item[1] = Vecf(0, 0.05, 0)   -- very much breaking encapsulation by knowing the implementation; this will force the subsequent call to getRadius to create everything at the correct heights because getHeight will only check Item[1]
-        cylinder:setRadius(0.05)
+        cylinder.vertexArray.Item[1] = Vecf(0, MIN_CYLINDER_HEIGHT, 0)   -- very much breaking encapsulation by knowing the implementation; this will force the subsequent call to getRadius to create everything at the correct heights because getHeight will only check Item[1]
+        cylinder:setRadius(MIN_CYLINDER_RADIUS)
     end
     
     local sides = osg.DrawElementsUShort(gldef.GL_QUAD_STRIP, 0)  -- 0 is the index in cylinder.vertexArray to start from
@@ -94,7 +97,7 @@ function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4
         cylinder:setCenter(Vec(centerPos))
         local deltax, deltay, deltaz = getDeltas(startLoc, endLoc)
         local newradius = (deltax^2+deltaz^2)^0.5/2.0  -- the diameter is the xz-distance between startLoc and endLoc. Divide by 2 to get the radius. xz-distance is used because the cylinder expands in the xz-plane and cannot be expanded in y during this step (making the base).
-        if newradius > 0.05 then
+        if newradius > MIN_CYLINDER_RADIUS then
             cylinder:setRadius(newradius)
         end
         Actions.waitForRedraw()
@@ -114,7 +117,7 @@ function Cylinder(arg)  -- both constructors in one function. Pass either a Vec4
     repeat
         local endLoc = cylinder:getCursorPositionInConstructionCoords()
         local deltay = endLoc:y()-startLoc:y()
-        if (math.abs(deltay) > 0.05) then
+        if (math.abs(deltay) > MIN_CYLINDER_HEIGHT) then
             cylinder:setHeight(math.abs(deltay))
         end
         cylinder:setCenter(Vec(centerPos:x(), centerPos:y()+0.5*deltay, centerPos:z()))   -- the center is halfway up the height

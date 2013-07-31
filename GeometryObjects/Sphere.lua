@@ -13,6 +13,8 @@ require "gldef"
         float :getRadius()
 ]]--
 
+local MIN_SPHERE_RADIUS = 0.01
+
 function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f color for interactive draw, or an existing Sphere to copy
     copy = (type(arg) == "table")   -- copy will be true if an object to copy was passed, but false if a color was passed
     
@@ -28,7 +30,7 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
             sphere.vertexArray.Item[i] = Vecf(arg.vertexArray.Item[i])
         end
     else
-        sphere:setRadius(0.05)
+        sphere:setRadius(MIN_SPHERE_RADIUS)
     end
     
     sphere.geometry:setVertexArray(sphere.vertexArray)
@@ -119,7 +121,7 @@ function Sphere(arg)  -- both constructors in one function. Pass either a Vec4f 
         sphere:setCenter(Vec(avgPosf(startLoc, endLoc)))
         local newradius = (endLoc - startLoc):length() / 2
         local scaleFactor = newradius/0.05
-        if scaleFactor > 1 then   -- maintain minimum radius of 0.05
+        if scaleFactor > 1 then   -- maintain minimum radius
             sphere:scale(scaleFactor)
         end
         Actions.waitForRedraw()

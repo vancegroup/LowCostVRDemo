@@ -13,6 +13,8 @@ require "gldef"
         float, float, float :getHalfLengths()  -- returns three floats representing the current HalfLengths of the box (x,y,z)
 ]]--
 
+local MIN_BOX_HALFLENGTH = 0.005
+
 function Box(arg)  -- both constructors in one function. Pass either a Vec4f color for interactive draw, or an existing Box to copy
     copy = (type(arg) == "table")   -- copy will be true if an object to copy was passed, but false if a color was passed
     
@@ -28,7 +30,7 @@ function Box(arg)  -- both constructors in one function. Pass either a Vec4f col
             box.vertexArray.Item[i] = Vecf(arg.vertexArray.Item[i])
         end
     else
-        box:setHalfLengths(0.01, 0.01, 0.01)
+        box:setHalfLengths(MIN_BOX_HALFLENGTH, MIN_BOX_HALFLENGTH, MIN_BOX_HALFLENGTH)
     end
     
     local faceStrip = osg.DrawElementsUShort(gldef.GL_QUAD_STRIP, 0)  -- the top, back, bottom, and front faces in that order
@@ -84,9 +86,9 @@ function Box(arg)  -- both constructors in one function. Pass either a Vec4f col
         box:setCenter(Vec(avgPosf(startLoc, endLoc)))
         local deltax, deltay, deltaz = getDeltas(startLoc, endLoc)
         deltax, deltay, deltaz = 0.5*math.abs(deltax), 0.5*math.abs(deltay), 0.5*math.abs(deltaz)
-        if deltax < 0.01 then deltax = 0.01 end  -- disallow halfLengths less than 0.01
-        if deltay < 0.01 then deltay = 0.01 end
-        if deltaz < 0.01 then deltaz = 0.01 end
+        if deltax < MIN_BOX_HALFLENGTH then deltax = MIN_BOX_HALFLENGTH end
+        if deltay < MIN_BOX_HALFLENGTH then deltay = MIN_BOX_HALFLENGTH end
+        if deltaz < MIN_BOX_HALFLENGTH then deltaz = MIN_BOX_HALFLENGTH end
         box:setHalfLengths(deltax, deltay, deltaz)
         Actions.waitForRedraw()
     until not hold_to_draw_button.pressed

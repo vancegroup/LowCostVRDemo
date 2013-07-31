@@ -29,10 +29,11 @@ require "myGrabbable"
 
 function myObject(grabbable)
     local object = grabbable
-    object.xform_centering = Transform{ position = {0,0,0} }   -- this explained above in the class description
-    object.xform_centering:addChild(object.attach_here)
-    object.attach_here = Transform{}  -- attach_here is now a new wrapper for the whole myObject, i.e. the outermost node in the construct
-    object.attach_here:addChild(object.xform_centering)
+    object.xform_centering = Transform{   -- this explained above in the class description
+        position = {0,0,0},
+        object.attach_here
+    }
+    object.attach_here = Transform{ object.xform_centering }  -- attach_here is now a new wrapper for the whole myObject, i.e. the outermost node in the construct
     
     object.selected = false
     object.cursorOver = false
@@ -56,7 +57,7 @@ function myObject(grabbable)
     end
     
     object.getCursorPositionInConstructionCoords = function()
-        local constructionToWorldMatrix = object.attach_here:getWorldMatrices(RelativeTo.World).Item[1]
+        local constructionToWorldMatrix = object.attach_here:getWorldMatrices().Item[1]
         local worldToConstructionMatrix = osg.Matrixd.inverse(constructionToWorldMatrix)
         return Vecf(worldToConstructionMatrix:preMult(cursor:getPosition()))
         -- identical to return Vecf(object:getWorldToLocalCoords():preMult(cursor:getPosition())) except that the construction-coords function is unaffected by calls to setCenter(). It's also unaffected by (doesn't account for) grabbing (selecting and moving/rotating), which is why it's only suitable for use during construction before it's been grabbed.
@@ -77,18 +78,3 @@ end
 function getDeltas(startVec, endVec)
     return endVec:x() - startVec:x(), endVec:y() - startVec:y(), endVec:z() - startVec:z()
 end
-
--- no longer used functions
---[[
-function angleDegreesBetween(v1, v2)
-    return math.acos((dot_prod_3(v1,v2))/(v1:length()*v2:length()))*180/math.pi
-end
-
-function dot_prod_3(v1, v2)
-    return v1:x()*v2:x() + v1:y()*v2:y() + v1:z()*v2:z()
-end
-
-function x_prod(vec1, vec2)
-    return Vecf( vec1:y()*vec2:z() - vec1:z()*vec2:y(), vec1:z()*vec2:x() - vec1:x()*vec2:z(), vec1:x()*vec2:y() - vec1:y()*vec2:x() )
-end
-]]--

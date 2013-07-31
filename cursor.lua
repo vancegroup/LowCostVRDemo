@@ -7,11 +7,10 @@ require "controls"  -- wand
         
         Matrixd :getPose()  -- get the position and orientation matrix for the cursor with respect to global coordinates.
         Vec3f :getPosition()  -- get just the position information as above.
-        Matrixd :getWandMatrix()   -- returns the current wand.matrix adjusted for the set cursor sensitivity. This is the ONLY function allowed to directly access the global 'wand' PositionInterface - everyone else must call this function for all their wand-tracking needs.
+        Matrixd :getWandMatrix()   -- returns the current wand.matrix. Adjustments can be made to it if desired; the current implementation as of this writing doesn't make any adjustments. This is the ONLY function allowed to directly access the global 'wand' PositionInterface - everyone else must call this function for all their wand-tracking needs.
         void :changeAppearance(node)   -- pass any node (i.e. Transform, Geode) and it (with all its children, of course) will be rendered as the new cursor image
         void :pause()  -- cursor will stay locked in place despite movement of wand, until call to :unpause()
         void :unpause()
-        
         
         .defaultAppearance   -- a node to pass to :changeAppearance to restore the default appearance
         -- alternate appearances to be added in the future
@@ -21,8 +20,6 @@ require "controls"  -- wand
         .xform_calibration  -- the osg.MatrixTransform used for calibration. Whatever position/orientation the wand is reporting during program initialization will be taken as the origin for as long as this program runs. Therefore the cursor will start at the origin.
         .paused  -- whether the cursor is paused or not
 ]]--
-
-local CURSOR_SENSITIVITY = 30   -- Higher numbers make smaller wand movements move the cursor farther on-screen. Negative numbers will invert the wand, so don't use them.
 
 cursor = {}
 
@@ -40,16 +37,19 @@ cursor.unpause = function()
 end
 
 -- initialize cursor.defaultAppearance
-local shapeDrawable = osg.ShapeDrawable(osg.Cone(Vecf(0,0,0), 0.15, 0.4))   -- tip is at (0, 0, 0.3)
+local shapeDrawable = osg.ShapeDrawable(osg.Cone(Vecf(0,0,0), 0.015, 0.04))   -- tip is at (0, 0, 0.03)
 shapeDrawable:setColor(Vecf(1.0, 0.5, 0.0, 1.0))
 local geode = osg.Geode()
 geode:addDrawable(shapeDrawable)
-local permxform = Transform{ position = {0, -0.3, 0}, orientation = AngleAxis(Degrees(-90), Axis{1.0,0.0,0.0}) }   -- position component adjusts so that the cursor behaves as if the tip is its center
-permxform:addChild(geode)
+local permxform = Transform{
+    position = {0, 0, 0.03},  -- adjusts so that the cursor behaves as if the tip is its center
+    orientation = AngleAxis(Degrees(-180), Axis{1.0,0.0,0.0}),
+    geode
+}
 cursor.defaultAppearance = permxform
 
 cursor.getPose = function()
-    return cursor.xform:getWorldMatrices(RelativeTo.World).Item[1]
+    return cursor.xform:getWorldMatrices().Item[1]
 end
 
 cursor.getPosition = function()
@@ -57,39 +57,27 @@ cursor.getPosition = function()
 end
 
 cursor.getWandMatrix = function()
-    local wandMatrix = wand.matrix
-    wandMatrix:setTrans(CURSOR_SENSITIVITY*wandMatrix:getTrans())
-    return wandMatrix
+    return wand.matrix
 end
 
 function enableCursor()
-    local master_xform = Transform{ position = MASTER_OFFSET_VEC }   -- MASTER_OFFSET_VEC is defined in main.lua
-    RelativeTo.World:addChild(master_xform)   -- separate transform is used (not the World defined in main.lua) so that changing the view does not rotate the axes of the cursor. I.e. the cursor's axes never change, so moving the wand toward the screen always causes the cursor to move in the global -z direction.
-    cursor.xform = osg.MatrixTransform()
-    cursor.xform_calibration = osg.MatrixTransform()
-    master_xform:addChild(cursor.xform_calibration)
-    cursor.xform_calibration:addChild(cursor.xform)
+    cursor.xform = MatrixTransform{}
+    RelativeTo.Room:addChild(
+        Transform{
+            position = {0,0,-1};
+            cursor.xform
+        }
+    )
     
     cursor:changeAppearance(cursor.defaultAppearance)
     cursor:unpause()
     
-    Actions.addFrameAction(function()
-        -- on the first frame take measurements for calibration
-        cursor.xform_calibration:setMatrix(osg.Matrixd.inverse(cursor.getWandMatrix()))   -- initially, this will exactly cancel cursor.xform and result in having the cursor at the origin. Returning the wand to its starting position will return the cursor to the origin.
-        
+    Actions.addFrameAction(function()        
         while true do
             cursor.xform:setMatrix(cursor:getWandMatrix())
-            if cursor.paused then
-                cursor.xform_calibration:preMult(cursor:getWandMatrix())
-                cursor.xform:setMatrix(osg.Matrixd.identity())
-                repeat
-                    Actions.waitForRedraw()
-                until not cursor.paused
-                cursor.xform_calibration:preMult(osg.Matrixd.inverse(cursor:getWandMatrix()))
-                cursor.xform:setMatrix(cursor:getWandMatrix())
-            else
+            repeat
                 Actions.waitForRedraw()
-            end
+            until not cursor.paused
         end
     end)
     

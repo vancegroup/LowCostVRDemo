@@ -16,6 +16,9 @@ require "gldef"
         float, float :getHalfLengthsAtPercentHeight(float)   -- pass the percent up the height, where 1 is the tip and 0 is the base, receive the halfLengths at that height
 ]]--
 
+local MIN_PYRAMID_BASE_HALFLENGTH = 0.01
+local MIN_PYRAMID_HEIGHT = 0.002
+
 function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f color for interactive draw, or an existing Pyramid to copy
     copy = (type(arg) == "table")   -- copy will be true if an object to copy was passed, but false if a color was passed
     
@@ -34,8 +37,8 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
             pyramid.vertexArray.Item[i] = Vecf(arg.vertexArray.Item[i])
         end
     else
-        pyramid:setBaseHalfLengths(0.05, 0.05)
-        pyramid:setHeight(0.05)
+        pyramid:setBaseHalfLengths(MIN_PYRAMID_BASE_HALFLENGTH, MIN_PYRAMID_BASE_HALFLENGTH)
+        pyramid:setHeight(MIN_PYRAMID_HEIGHT)
     end
     
     local base = osg.DrawElementsUShort(gldef.GL_QUADS, 0)  -- 0 is the index in pyramid.vertexArray to start from
@@ -91,9 +94,9 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
         pyramid:setCenter(Vec(centerPos))
         local deltax, deltay, deltaz = getDeltas(startLoc, endLoc)
         deltax, deltay, deltaz = 0.5*math.abs(deltax), 0.5*math.abs(deltay), 0.5*math.abs(deltaz)
-        if deltax < 0.05 then deltax = 0.05 end  -- disallow halfLengths less than 0.05
-        if deltay < 0.05 then deltay = 0.05 end
-        if deltaz < 0.05 then deltaz = 0.05 end
+        if deltax < MIN_PYRAMID_BASE_HALFLENGTH then deltax = MIN_PYRAMID_BASE_HALFLENGTH end
+        if deltay < MIN_PYRAMID_BASE_HALFLENGTH then deltay = MIN_PYRAMID_BASE_HALFLENGTH end
+        if deltaz < MIN_PYRAMID_BASE_HALFLENGTH then deltaz = MIN_PYRAMID_BASE_HALFLENGTH end
         pyramid:setBaseHalfLengths(deltax, deltaz)
         Actions.waitForRedraw()
     until not hold_to_draw_button.pressed
@@ -112,7 +115,7 @@ function Pyramid(arg)  -- both constructors in one function. Pass either a Vec4f
     repeat
         local endLoc = pyramid:getCursorPositionInConstructionCoords()
         local deltay = endLoc:y()-startLoc:y()
-        if (math.abs(deltay) > 0.05) then
+        if (math.abs(deltay) > MIN_PYRAMID_HEIGHT) then
             pyramid:setHeight(math.abs(deltay))
         end
         Actions.waitForRedraw()

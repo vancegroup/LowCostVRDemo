@@ -27,14 +27,12 @@ require "cursor"
 function myGrabbable(someNode)    
     local grabbable = {}
     grabbable.transgroup = myTransparentGroup{ alpha = 1.0, someNode }
-    grabbable.xform_track = osg.MatrixTransform()
-    grabbable.xform_track:addChild(grabbable.transgroup)
-    grabbable.xform_save = osg.MatrixTransform(osg.Matrixd.identity())   -- identity() is a static method for the osg.Matrixd class.
-    grabbable.xform_save:addChild(grabbable.xform_track)
+    grabbable.xform_track = MatrixTransform{ grabbable.transgroup }
+    grabbable.xform_save = MatrixTransform{ grabbable.xform_track }
     grabbable.attach_here = grabbable.xform_save   -- the outermost node. See above outline for a good description of this field.
     
     grabbable.getLocalToWorldCoords = function()
-        return someNode:getWorldMatrices(RelativeTo.World).Item[1]
+        return someNode:getWorldMatrices().Item[1]
     end
     
     grabbable.getWorldToLocalCoords = function()
@@ -42,10 +40,10 @@ function myGrabbable(someNode)
     end
     
     grabbable.getCursorPoseInLocalCoords = function()
-        --print("\nrotation component of view:", grabbable.attach_here:getWorldMatrices(RelativeTo.World).Item[1]:getRotate())
-        --print("rotation component of inverse:", osg.Matrixd.inverse(grabbable.attach_here:getWorldMatrices(RelativeTo.World).Item[1]):getRotate())
+        --print("\nrotation component of view:", grabbable.attach_here:getWorldMatrices().Item[1]:getRotate())
+        --print("rotation component of inverse:", osg.Matrixd.inverse(grabbable.attach_here:getWorldMatrices().Item[1]):getRotate())
         --print("returning:")
-        local returnMe = cursor:getPose() * osg.Matrixd.inverse(grabbable.attach_here:getWorldMatrices(RelativeTo.World).Item[1])    -- using the new * for matrix multiplication in JuggLua
+        local returnMe = cursor:getPose() * osg.Matrixd.inverse(grabbable.attach_here:getWorldMatrices().Item[1])    -- using the new * for matrix multiplication in JuggLua
         returnMe:setRotate(osg.Quat())  -- no idea why zeroing the rotation makes it work. Without this line, the object moves the wrong direction when the view has been rotated
         --print("rotate:", returnMe:getRotate())
         --print("translate:", returnMe:getTrans())

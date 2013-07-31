@@ -15,6 +15,9 @@ require "gldef"
         float :getHeight()
 ]]--
 
+local MIN_CONE_RADIUS = 0.01
+local MIN_CONE_HEIGHT = 0.002
+
 function Cone(arg)  -- both constructors in one function. Pass either a Vec4f color for interactive draw, or an existing Cone to copy
     copy = (type(arg) == "table")   -- copy will be true if an object to copy was passed, but false if a color was passed
     
@@ -32,8 +35,8 @@ function Cone(arg)  -- both constructors in one function. Pass either a Vec4f co
             cone.vertexArray.Item[i] = Vecf(arg.vertexArray.Item[i])
         end
     else
-        cone:setRadius(0.05)
-        cone:setHeight(0.05)
+        cone:setRadius(MIN_CONE_RADIUS)
+        cone:setHeight(MIN_CONE_HEIGHT)
     end
     
     local sides = osg.DrawElementsUShort(gldef.GL_TRIANGLE_FAN, 0)  -- 0 is the index in cone.vertexArray to start from
@@ -83,7 +86,7 @@ function Cone(arg)  -- both constructors in one function. Pass either a Vec4f co
         cone:setCenter(Vec(centerPos))
         local deltax, deltay, deltaz = getDeltas(startLoc, endLoc)
         local newradius = (deltax^2+deltaz^2)^0.5/2.0  -- the diameter is the xz-distance between startLoc and endLoc. Divide by 2 to get the radius. xz-distance is used because the cone expands in the xz-plane and cannot be expanded in y during this step (making the base).
-        if newradius > 0.05 then
+        if newradius > MIN_CONE_RADIUS then
             cone:setRadius(newradius)
         end
         Actions.waitForRedraw()
@@ -102,7 +105,7 @@ function Cone(arg)  -- both constructors in one function. Pass either a Vec4f co
     repeat
         local endLoc = cone:getCursorPositionInConstructionCoords()
         local deltay = endLoc:y()-startLoc:y()
-        if deltay > 0.05 then
+        if deltay > MIN_CONE_HEIGHT then
             cone:setHeight(deltay)
         end
         Actions.waitForRedraw()

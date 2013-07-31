@@ -87,26 +87,23 @@ menu = {shapeMenu, colorMenu}
 cmxform = Transform{
 	position={0,0.43,0},
 	--orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
+    cmimage1
 }
 	
 smxform = Transform{
 	position={0,1.07,0},
 	--orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
+    smimage1
 }
 
--- makes the menus always display in screen coordinates
-xform1 = osg.AutoTransform()
-xform1:setAutoRotateMode(1)
-xform1:setAutoScaleToScreen(0)
-xform1:setPosition(Vec(-0.5, 1.75, -2.0))
-
-smxform:addChild(smimage1)
 transpSM = myTransparentGroup({smxform, alpha = 1.0})
-xform1:addChild(transpSM)
-
-cmxform:addChild(cmimage1)
 transpCM = myTransparentGroup({cmxform, alpha = 0.5})
-xform1:addChild(transpCM)
+
+xform1 = Transform{
+    position = {0, 0.5, -5},
+    transpSM,
+    transpCM
+}
 
 -- initialize to 1 and 1 automatically
 colorIndex = 1
@@ -115,6 +112,8 @@ shapeIndex = 1
 function libraryCalled()
 	RelativeTo.Room:addChild(xform1)
 	activeMenu = 1
+    changeTransparency(transpSM, 1.0)
+	changeTransparency(transpCM, 0.5)
 
 	libraryJustCalled = true
     while true do
