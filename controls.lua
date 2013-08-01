@@ -54,5 +54,6 @@ library_scroll_right_button = stickXRight
 library_switch_up_button = stickYUp
 library_switch_down_button = stickYDown
 library_confirm_button = stickclick
+help_button = button3
 allbuttons = {button0, button1, button2, button3, button4, bumper, stickclick, trigger, stickXLeft, stickXRight, stickYUp, stickYDown}
 allanalogs = {trigger_analog, analogstickX, analogstickY}
