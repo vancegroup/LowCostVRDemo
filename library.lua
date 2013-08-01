@@ -1,12 +1,9 @@
---require("getScriptFilename")
---require "controls"
+require "controls"
 require "myShapes"
 require "myColor"
 require "osgDB"
 require "gldef"
 require "myTransparentGroup"
-
---vrjLua.appendToModelSearchPath(getScriptFilename())
 
 function createImageObject(arg)
 	local scale = arg.scale or 1

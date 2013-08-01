@@ -19,13 +19,13 @@ function resumeSelection()
     selectionPaused = false
 end
 
+-- load the help image
 local helpImgPath = vrjLua.findInModelSearchPath([[OSG/help.jpg]])
-helpimage = createImageObject({width=3867,height=4607,img=helpImgPath, scale = 1)
+helpimage = createImageObject{width=3867,height=4607,img=helpImgPath, scale = 1}
 helpxform = Transform{
-    position={0,0.43,0},
+    position={0,0.6,-2},
     helpimage
 }
-helpjustcalled = false
 
 function runloop()
     
@@ -268,13 +268,16 @@ function runloop()
                 end
             end
 		
-		elseif help_button.justPressed and not helpjustcalled then
+		elseif help_button.justPressed then
 			RelativeTo.Room:addChild(helpxform)
-            helpjustcalled = true
-		
-        elseif help_button.justPressed and helpjustcalled then
+            repeat
+                runloop_waitForRedraw()
+            until not help_button.pressed
+            repeat
+                runloop_waitForRedraw()
+            until help_button.pressed
             RelativeTo.Room:removeChild(helpxform)
-            helpjustcalled = false
+        
         end
 		
         runloop_waitForRedraw()
