@@ -21,9 +21,9 @@ end
 
 -- load the help image
 local helpImgPath = vrjLua.findInModelSearchPath([[OSG/help.jpg]])
-helpimage = createImageObject{width=3867,height=4607,img=helpImgPath, scale = 1}
+helpimage = createImageObject{width=3867,height=4607,img=helpImgPath, scale = 0.5}
 helpxform = Transform{
-    position={0,0.6,-2},
+    position={0,1.4,-0.4},
     helpimage
 }
 

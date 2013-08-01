@@ -42,21 +42,21 @@ local cmImgPath8 = vrjLua.findInModelSearchPath([[OSG/cm8.jpg]])
 local cmImgPath9 = vrjLua.findInModelSearchPath([[OSG/cm9.jpg]])
 
 --create "image object" by passing width (pixels), height (in pixels), and path to image (optional: scale)
-smimage1 = createImageObject({width=1820,height=420,img=smImgPath1, scale = 2})
-smimage2 = createImageObject({width=1820,height=420,img=smImgPath2, scale = 2})
-smimage3 = createImageObject({width=1820,height=420,img=smImgPath3, scale = 2})
-smimage4 = createImageObject({width=1820,height=420,img=smImgPath4, scale = 2})
-smimage5 = createImageObject({width=1820,height=420,img=smImgPath5, scale = 2})
+smimage1 = createImageObject({width=1820,height=420,img=smImgPath1, scale = 1})
+smimage2 = createImageObject({width=1820,height=420,img=smImgPath2, scale = 1})
+smimage3 = createImageObject({width=1820,height=420,img=smImgPath3, scale = 1})
+smimage4 = createImageObject({width=1820,height=420,img=smImgPath4, scale = 1})
+smimage5 = createImageObject({width=1820,height=420,img=smImgPath5, scale = 1})
 
-cmimage1 = createImageObject({width = 1820, height =250, img = cmImgPath1, scale = 2})
-cmimage2 = createImageObject({width = 1820, height =250, img = cmImgPath2, scale = 2})
-cmimage3 = createImageObject({width = 1820, height =250, img = cmImgPath3, scale = 2})
-cmimage4 = createImageObject({width = 1820, height =250, img = cmImgPath4, scale = 2})
-cmimage5 = createImageObject({width = 1820, height =250, img = cmImgPath5, scale = 2})
-cmimage6 = createImageObject({width = 1820, height =250, img = cmImgPath6, scale = 2})
-cmimage7 = createImageObject({width = 1820, height =250, img = cmImgPath7, scale = 2})
-cmimage8 = createImageObject({width = 1820, height =250, img = cmImgPath8, scale = 2})
-cmimage9 = createImageObject({width = 1820, height =250, img = cmImgPath9, scale = 2})
+cmimage1 = createImageObject({width = 1820, height =250, img = cmImgPath1, scale = 1})
+cmimage2 = createImageObject({width = 1820, height =250, img = cmImgPath2, scale = 1})
+cmimage3 = createImageObject({width = 1820, height =250, img = cmImgPath3, scale = 1})
+cmimage4 = createImageObject({width = 1820, height =250, img = cmImgPath4, scale = 1})
+cmimage5 = createImageObject({width = 1820, height =250, img = cmImgPath5, scale = 1})
+cmimage6 = createImageObject({width = 1820, height =250, img = cmImgPath6, scale = 1})
+cmimage7 = createImageObject({width = 1820, height =250, img = cmImgPath7, scale = 1})
+cmimage8 = createImageObject({width = 1820, height =250, img = cmImgPath8, scale = 1})
+cmimage9 = createImageObject({width = 1820, height =250, img = cmImgPath9, scale = 1})
 
 sphere = myShapes(smimage1, "sphere")
 cube = myShapes(smimage2 , "cube")
@@ -82,7 +82,7 @@ menu = {shapeMenu, colorMenu}
 
 -- set up position to draw menus
 cmxform = Transform{
-	position={0,0.82,0},
+	position={0,0.92,0},
 	--orientation=AngleAxis(Degrees(180), Axis{0.0,1.0,0.0}),
     cmimage1
 }
@@ -97,7 +97,7 @@ transpSM = myTransparentGroup({smxform, alpha = 1.0})
 transpCM = myTransparentGroup({cmxform, alpha = 0.5})
 
 xform1 = Transform{
-    position = {0, 0, -2},
+    position = {0, 0.7, -0.3},
     transpSM,
     transpCM
 }
