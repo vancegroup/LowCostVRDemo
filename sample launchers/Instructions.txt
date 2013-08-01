@@ -1,0 +1,9 @@
+These launchers are sample launchers. To use them, you must modify them and add the correct paths. (Except hydraserver, which should work without being modified.)
+
+To launch with the 1-handed Hydra configuration:
+1) Launch VRPN using launcher_hydraserver.cmd (VRPN can be kept running even if the application is opened and closed)
+2) After seeing the "Got first motion controller report!" message from VRPN, run launcher_hydraserver.cmd.
+
+To launch in sim mode:
+1) Uncomment the line 'require "controls_sim_mode"' near the top of runloop.lua.
+2) Run launcher_sim_mode.cmd.
